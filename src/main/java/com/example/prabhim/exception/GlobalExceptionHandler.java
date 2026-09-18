@@ -76,6 +76,18 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(ex.getMessage()));
     }
 
+    @ExceptionHandler(DietNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleDietNotFoundException(DietNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(ex.getMessage()));
+    }
+
+    @ExceptionHandler(PaymentNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handlePaymentNotFoundException(PaymentNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(ex.getMessage()));
+    }
+
     @ExceptionHandler(InvalidOtpException.class)
     public ResponseEntity<ApiResponse<Object>> handleInvalidOtpException(InvalidOtpException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)

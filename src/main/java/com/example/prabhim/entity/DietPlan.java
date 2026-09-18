@@ -25,14 +25,42 @@ public class DietPlan {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false)
+    @JoinColumn(name = "member_id")
     private Member member;
+
+    @Column(name = "athlete_name")
+    private String athleteName;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "trainer_id")
+    private Trainer trainer;
+
+    @Column(name = "coach_name")
+    private String coachName;
 
     @Column(name = "plan_name", nullable = false)
     private String planName;
 
     @Column(name = "daily_calories")
     private Integer dailyCalories;
+
+    @Column(name = "daily_water_target")
+    private Double dailyWaterTarget;
+
+    @Column(name = "breakfast_protocol", columnDefinition = "TEXT")
+    private String breakfastProtocol;
+
+    @Column(name = "lunch_protocol", columnDefinition = "TEXT")
+    private String lunchProtocol;
+
+    @Column(name = "dinner_protocol", columnDefinition = "TEXT")
+    private String dinnerProtocol;
+
+    @Column(name = "snacks_protocol", columnDefinition = "TEXT")
+    private String snacksProtocol;
+
+    @Column(name = "special_guidance", columnDefinition = "TEXT")
+    private String specialGuidance;
 
     @Column(name = "protein_grams")
     private Integer proteinGrams;
@@ -46,6 +74,7 @@ public class DietPlan {
     @Column(name = "meal_schedule", columnDefinition = "TEXT")
     private String mealSchedule;
 
+    @Column(nullable = false)
     private String status = "ACTIVE";
 
     @Column(name = "assigned_by")
@@ -56,6 +85,9 @@ public class DietPlan {
 
     @Column(name = "end_date")
     private LocalDate endDate;
+
+    @Column(columnDefinition = "TEXT")
+    private String notes;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -74,7 +106,7 @@ public class DietPlan {
         if (this.updatedAt == null) {
             this.updatedAt = LocalDateTime.now();
         }
-        if (this.status == null) {
+        if (this.status == null || this.status.trim().isEmpty()) {
             this.status = "ACTIVE";
         }
     }
@@ -98,6 +130,42 @@ public class DietPlan {
 
     public void setMember(Member member) {
         this.member = member;
+        if (member != null) {
+            String fullName = (member.getFirstName() != null ? member.getFirstName() : "")
+                    + " " + (member.getLastName() != null ? member.getLastName() : "");
+            this.athleteName = fullName.trim();
+        }
+    }
+
+    public String getAthleteName() {
+        return athleteName;
+    }
+
+    public void setAthleteName(String athleteName) {
+        this.athleteName = athleteName;
+    }
+
+    public Trainer getTrainer() {
+        return trainer;
+    }
+
+    public void setTrainer(Trainer trainer) {
+        this.trainer = trainer;
+        if (trainer != null) {
+            this.coachName = trainer.getFullName();
+            this.assignedBy = trainer.getFullName();
+        }
+    }
+
+    public String getCoachName() {
+        return coachName;
+    }
+
+    public void setCoachName(String coachName) {
+        this.coachName = coachName;
+        if (this.assignedBy == null || this.assignedBy.trim().isEmpty()) {
+            this.assignedBy = coachName;
+        }
     }
 
     public String getPlanName() {
@@ -114,6 +182,54 @@ public class DietPlan {
 
     public void setDailyCalories(Integer dailyCalories) {
         this.dailyCalories = dailyCalories;
+    }
+
+    public Double getDailyWaterTarget() {
+        return dailyWaterTarget;
+    }
+
+    public void setDailyWaterTarget(Double dailyWaterTarget) {
+        this.dailyWaterTarget = dailyWaterTarget;
+    }
+
+    public String getBreakfastProtocol() {
+        return breakfastProtocol;
+    }
+
+    public void setBreakfastProtocol(String breakfastProtocol) {
+        this.breakfastProtocol = breakfastProtocol;
+    }
+
+    public String getLunchProtocol() {
+        return lunchProtocol;
+    }
+
+    public void setLunchProtocol(String lunchProtocol) {
+        this.lunchProtocol = lunchProtocol;
+    }
+
+    public String getDinnerProtocol() {
+        return dinnerProtocol;
+    }
+
+    public void setDinnerProtocol(String dinnerProtocol) {
+        this.dinnerProtocol = dinnerProtocol;
+    }
+
+    public String getSnacksProtocol() {
+        return snacksProtocol;
+    }
+
+    public void setSnacksProtocol(String snacksProtocol) {
+        this.snacksProtocol = snacksProtocol;
+    }
+
+    public String getSpecialGuidance() {
+        return specialGuidance;
+    }
+
+    public void setSpecialGuidance(String specialGuidance) {
+        this.specialGuidance = specialGuidance;
     }
 
     public Integer getProteinGrams() {
@@ -178,6 +294,14 @@ public class DietPlan {
 
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
     public LocalDateTime getCreatedAt() {

@@ -90,7 +90,13 @@ public class SecurityConfig {
                                 "/api/v1/attendance/**",
                                 "/api/v1/workouts/**",
                                 "/api/v1/workout-routines/**",
-                                "/api/v1/workout-programs/**"
+                                "/api/v1/workout-programs/**",
+                                "/api/v1/diets/**",
+                                "/api/v1/diet-plans/**",
+                                "/api/v1/nutritional-protocols/**",
+                                "/api/v1/payments/**",
+                                "/api/v1/invoices/**",
+                                "/api/v1/billing/**"
                         ).permitAll()
                         .requestMatchers(
                                 "/api/v1/auth/logout/",
