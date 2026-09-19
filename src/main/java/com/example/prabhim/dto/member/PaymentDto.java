@@ -11,11 +11,13 @@ public class PaymentDto {
 
     private UUID id;
     private String invoiceNumber;
+    private String planName;
     private BigDecimal amount;
     private LocalDateTime paymentDate;
     private String paymentMethod;
     private PaymentStatus status;
     private String description;
+    private String transactionReference;
 
     public PaymentDto() {
     }
@@ -27,11 +29,13 @@ public class PaymentDto {
         PaymentDto dto = new PaymentDto();
         dto.setId(payment.getId());
         dto.setInvoiceNumber(payment.getInvoiceNumber());
+        dto.setPlanName(payment.getMembershipPlan() != null ? payment.getMembershipPlan().getName() : payment.getPlanName());
         dto.setAmount(payment.getAmount());
         dto.setPaymentDate(payment.getPaymentDate());
         dto.setPaymentMethod(payment.getPaymentMethod());
         dto.setStatus(payment.getStatus());
         dto.setDescription(payment.getDescription());
+        dto.setTransactionReference(payment.getTransactionReference());
         return dto;
     }
 
@@ -49,6 +53,14 @@ public class PaymentDto {
 
     public void setInvoiceNumber(String invoiceNumber) {
         this.invoiceNumber = invoiceNumber;
+    }
+
+    public String getPlanName() {
+        return planName;
+    }
+
+    public void setPlanName(String planName) {
+        this.planName = planName;
     }
 
     public BigDecimal getAmount() {
@@ -89,5 +101,13 @@ public class PaymentDto {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getTransactionReference() {
+        return transactionReference;
+    }
+
+    public void setTransactionReference(String transactionReference) {
+        this.transactionReference = transactionReference;
     }
 }

@@ -10,10 +10,16 @@ public class DietPlanDto {
     private UUID id;
     private String planName;
     private Integer dailyCalories;
+    private Double dailyWaterTarget;
     private Integer proteinGrams;
     private Integer carbsGrams;
     private Integer fatGrams;
     private String mealSchedule;
+    private String breakfastProtocol;
+    private String lunchProtocol;
+    private String dinnerProtocol;
+    private String snacksProtocol;
+    private String specialGuidance;
     private String status;
     private String assignedBy;
     private LocalDate startDate;
@@ -30,12 +36,18 @@ public class DietPlanDto {
         dto.setId(dietPlan.getId());
         dto.setPlanName(dietPlan.getPlanName());
         dto.setDailyCalories(dietPlan.getDailyCalories());
+        dto.setDailyWaterTarget(dietPlan.getDailyWaterTarget());
         dto.setProteinGrams(dietPlan.getProteinGrams());
         dto.setCarbsGrams(dietPlan.getCarbsGrams());
         dto.setFatGrams(dietPlan.getFatGrams());
         dto.setMealSchedule(dietPlan.getMealSchedule());
+        dto.setBreakfastProtocol(dietPlan.getBreakfastProtocol());
+        dto.setLunchProtocol(dietPlan.getLunchProtocol());
+        dto.setDinnerProtocol(dietPlan.getDinnerProtocol());
+        dto.setSnacksProtocol(dietPlan.getSnacksProtocol());
+        dto.setSpecialGuidance(dietPlan.getSpecialGuidance());
         dto.setStatus(dietPlan.getStatus());
-        dto.setAssignedBy(dietPlan.getAssignedBy());
+        dto.setAssignedBy(dietPlan.getCoachName() != null ? dietPlan.getCoachName() : dietPlan.getAssignedBy());
         dto.setStartDate(dietPlan.getStartDate());
         dto.setEndDate(dietPlan.getEndDate());
         return dto;
@@ -63,6 +75,14 @@ public class DietPlanDto {
 
     public void setDailyCalories(Integer dailyCalories) {
         this.dailyCalories = dailyCalories;
+    }
+
+    public Double getDailyWaterTarget() {
+        return dailyWaterTarget;
+    }
+
+    public void setDailyWaterTarget(Double dailyWaterTarget) {
+        this.dailyWaterTarget = dailyWaterTarget;
     }
 
     public Integer getProteinGrams() {
@@ -95,6 +115,46 @@ public class DietPlanDto {
 
     public void setMealSchedule(String mealSchedule) {
         this.mealSchedule = mealSchedule;
+    }
+
+    public String getBreakfastProtocol() {
+        return breakfastProtocol;
+    }
+
+    public void setBreakfastProtocol(String breakfastProtocol) {
+        this.breakfastProtocol = breakfastProtocol;
+    }
+
+    public String getLunchProtocol() {
+        return lunchProtocol;
+    }
+
+    public void setLunchProtocol(String lunchProtocol) {
+        this.lunchProtocol = lunchProtocol;
+    }
+
+    public String getDinnerProtocol() {
+        return dinnerProtocol;
+    }
+
+    public void setDinnerProtocol(String dinnerProtocol) {
+        this.dinnerProtocol = dinnerProtocol;
+    }
+
+    public String getSnacksProtocol() {
+        return snacksProtocol;
+    }
+
+    public void setSnacksProtocol(String snacksProtocol) {
+        this.snacksProtocol = snacksProtocol;
+    }
+
+    public String getSpecialGuidance() {
+        return specialGuidance;
+    }
+
+    public void setSpecialGuidance(String specialGuidance) {
+        this.specialGuidance = specialGuidance;
     }
 
     public String getStatus() {
