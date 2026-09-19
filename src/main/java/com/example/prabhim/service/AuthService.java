@@ -111,6 +111,7 @@ public class AuthService {
         user.setUpdatedAt(LocalDateTime.now());
 
         User savedUser = userRepository.save(user);
+        emailService.sendWelcomeEmail(savedUser.getEmail(), savedUser.getFirstName());
         return mapToUserResponse(savedUser);
     }
 
