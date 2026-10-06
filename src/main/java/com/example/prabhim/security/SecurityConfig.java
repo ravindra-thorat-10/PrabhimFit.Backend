@@ -96,7 +96,9 @@ public class SecurityConfig {
                                 "/api/v1/nutritional-protocols/**",
                                 "/api/v1/payments/**",
                                 "/api/v1/invoices/**",
-                                "/api/v1/billing/**"
+                                "/api/v1/billing/**",
+                                "/api/v1/reports/**",
+                                "/api/v1/analytics/**"
                         ).permitAll()
                         .requestMatchers(
                                 "/api/v1/auth/logout/",

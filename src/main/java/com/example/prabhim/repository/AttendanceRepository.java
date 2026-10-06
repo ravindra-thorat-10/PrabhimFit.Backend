@@ -56,6 +56,10 @@ public interface AttendanceRepository extends JpaRepository<Attendance, UUID>, J
             @Param("endOfDay") LocalDateTime endOfDay
     );
 
+    List<Attendance> findByCheckInTimeBetweenOrderByCheckInTimeDesc(LocalDateTime start, LocalDateTime end);
+
+    long countByCheckInTimeBetween(LocalDateTime start, LocalDateTime end);
+
     @Query("SELECT COUNT(a) FROM Attendance a WHERE a.checkInTime BETWEEN :startOfDay AND :endOfDay AND UPPER(a.status) = 'PRESENT'")
     long countOnTimeCheckInsBetween(@Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay") LocalDateTime endOfDay);
 

@@ -1,5 +1,7 @@
 package com.example.prabhim.repository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,6 +30,10 @@ public interface MemberRepository extends JpaRepository<Member, UUID>, JpaSpecif
     long count();
 
     long countByStatus(MemberStatus status);
+
+    long countByJoinDateBetween(LocalDate startDate, LocalDate endDate);
+
+    long countByCreatedAtBetween(LocalDateTime startDateTime, LocalDateTime endDateTime);
 
     @Query("SELECT COUNT(m) FROM Member m WHERE m.trainer.id = :trainerId")
     long countByTrainerId(@org.springframework.data.repository.query.Param("trainerId") UUID trainerId);
