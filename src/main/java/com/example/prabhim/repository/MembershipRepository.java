@@ -31,5 +31,11 @@ public interface MembershipRepository extends JpaRepository<Membership, UUID> {
     @Query("SELECT COUNT(m) FROM Membership m WHERE m.status = 'ACTIVE' AND m.endDate BETWEEN :startDate AND :endDate")
     long countExpiringBetween(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
+    List<Membership> findByStatus(MembershipStatus status);
+
+    List<Membership> findByStatusOrderByEndDateAsc(MembershipStatus status);
+
+    List<Membership> findByEndDateBetweenOrderByEndDateAsc(LocalDate startDate, LocalDate endDate);
+
     void deleteByMemberId(UUID memberId);
 }
