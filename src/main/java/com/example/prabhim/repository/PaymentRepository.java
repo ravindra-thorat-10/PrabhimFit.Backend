@@ -28,6 +28,10 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID>, JpaSpec
 
     Optional<Payment> findTopByOrderByCreatedAtDesc();
 
+    List<Payment> findAllByOrderByPaymentDateDesc();
+
+    List<Payment> findByPaymentDateBetweenOrderByPaymentDateDesc(LocalDateTime start, LocalDateTime end);
+
     @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p WHERE p.status = com.example.prabhim.entity.enums.PaymentStatus.PAID")
     BigDecimal findTotalLifetimeCollections();
 
@@ -39,4 +43,3 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID>, JpaSpec
 
     void deleteByMemberId(UUID memberId);
 }
-
