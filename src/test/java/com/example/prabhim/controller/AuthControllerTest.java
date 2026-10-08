@@ -51,12 +51,16 @@ class AuthControllerTest {
     @Autowired
     private SessionRepository sessionRepository;
 
+    @Autowired
+    private com.example.prabhim.repository.LeadRepository leadRepository;
+
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(context)
                 .apply(springSecurity())
                 .build();
+        leadRepository.deleteAll();
         sessionRepository.deleteAll();
         userRepository.deleteAll();
     }

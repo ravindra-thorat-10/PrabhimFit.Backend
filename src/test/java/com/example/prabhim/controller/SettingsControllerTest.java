@@ -51,6 +51,9 @@ class SettingsControllerTest {
     @Autowired
     private SettingsRepository settingsRepository;
 
+    @Autowired
+    private com.example.prabhim.repository.LeadRepository leadRepository;
+
     private String authToken;
     private UUID currentUserId;
 
@@ -90,6 +93,7 @@ class SettingsControllerTest {
                 .apply(springSecurity())
                 .build();
 
+        leadRepository.deleteAll();
         settingsRepository.deleteAll();
         userRepository.deleteAll();
 

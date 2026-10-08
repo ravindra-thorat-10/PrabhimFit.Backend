@@ -89,6 +89,9 @@ class WorkoutControllerTest {
     @Autowired
     private WorkoutExerciseRepository workoutExerciseRepository;
 
+    @Autowired
+    private com.example.prabhim.repository.LeadRepository leadRepository;
+
     private String authToken;
 
     @BeforeEach
@@ -98,6 +101,7 @@ class WorkoutControllerTest {
                 .apply(springSecurity())
                 .build();
 
+        leadRepository.deleteAll();
         workoutExerciseRepository.deleteAll();
         workoutRoutineRepository.deleteAll();
         attendanceRepository.deleteAll();

@@ -98,7 +98,11 @@ public class SecurityConfig {
                                 "/api/v1/invoices/**",
                                 "/api/v1/billing/**",
                                 "/api/v1/reports/**",
-                                "/api/v1/analytics/**"
+                                "/api/v1/analytics/**",
+                                "/api/v1/leads/**",
+                                "/api/v1/profile/**",
+                                "/api/v1/users/profile/**",
+                                "/api/profile/**"
                         ).permitAll()
                         .requestMatchers(
                                 "/api/v1/auth/logout/",

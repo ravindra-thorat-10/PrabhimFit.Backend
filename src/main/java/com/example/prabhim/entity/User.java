@@ -29,6 +29,9 @@ public class User {
     private String lastName;
     private String phone;
 
+    @Column(name = "admin_code")
+    private String adminCode;
+
     @JsonIgnore
     private String password;
 
@@ -38,6 +41,44 @@ public class User {
 
     @Column(columnDefinition = "TEXT")
     private String profilePic;
+
+    // Residential & Postal Information
+    @Column(name = "residential_address", columnDefinition = "TEXT")
+    private String residentialAddress;
+
+    private String city;
+    private String state;
+    private String pincode;
+
+    // Emergency & Secondary Administrative Contact
+    @Column(name = "secondary_contact_name")
+    private String secondaryContactName;
+
+    @Column(name = "secondary_contact_phone")
+    private String secondaryContactPhone;
+
+    @Column(name = "secondary_contact_role")
+    private String secondaryContactRole;
+
+    // Bio & Professional Statement
+    @Column(columnDefinition = "TEXT")
+    private String bio;
+
+    // Facility & Organization Link
+    @Column(name = "facility_name")
+    private String facilityName;
+
+    @Column(name = "admin_tenure")
+    private String adminTenure;
+
+    @Column(name = "privilege_level")
+    private String privilegeLevel;
+
+    @Column(name = "two_factor_enabled")
+    private boolean twoFactorEnabled = true;
+
+    @Column(name = "two_factor_verified")
+    private boolean twoFactorVerified = true;
 
     private String timeZone;
     private String theme;
@@ -67,12 +108,27 @@ public class User {
         if (this.updatedAt == null) {
             this.updatedAt = LocalDateTime.now();
         }
+        if (this.adminCode == null && (this.staff || this.superuser)) {
+            this.adminCode = "#ADM-" + LocalDateTime.now().getYear() + "-" + String.format("%03d", (int)(Math.random() * 900) + 100);
+        }
     }
 
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
+    public String getFullName() {
+        if (firstName == null) {
+            return lastName != null ? lastName : "";
+        }
+        if (lastName == null) {
+            return firstName;
+        }
+        return (firstName + " " + lastName).trim();
+    }
+
+    // Getters and Setters
 
     public UUID getId() {
         return id;
@@ -112,6 +168,14 @@ public class User {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getAdminCode() {
+        return adminCode;
+    }
+
+    public void setAdminCode(String adminCode) {
+        this.adminCode = adminCode;
     }
 
     public String getPassword() {
@@ -216,6 +280,110 @@ public class User {
 
     public void setProfilePic(String profilePic) {
         this.profilePic = profilePic;
+    }
+
+    public String getResidentialAddress() {
+        return residentialAddress;
+    }
+
+    public void setResidentialAddress(String residentialAddress) {
+        this.residentialAddress = residentialAddress;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getPincode() {
+        return pincode;
+    }
+
+    public void setPincode(String pincode) {
+        this.pincode = pincode;
+    }
+
+    public String getSecondaryContactName() {
+        return secondaryContactName;
+    }
+
+    public void setSecondaryContactName(String secondaryContactName) {
+        this.secondaryContactName = secondaryContactName;
+    }
+
+    public String getSecondaryContactPhone() {
+        return secondaryContactPhone;
+    }
+
+    public void setSecondaryContactPhone(String secondaryContactPhone) {
+        this.secondaryContactPhone = secondaryContactPhone;
+    }
+
+    public String getSecondaryContactRole() {
+        return secondaryContactRole;
+    }
+
+    public void setSecondaryContactRole(String secondaryContactRole) {
+        this.secondaryContactRole = secondaryContactRole;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
+    public String getFacilityName() {
+        return facilityName;
+    }
+
+    public void setFacilityName(String facilityName) {
+        this.facilityName = facilityName;
+    }
+
+    public String getAdminTenure() {
+        return adminTenure;
+    }
+
+    public void setAdminTenure(String adminTenure) {
+        this.adminTenure = adminTenure;
+    }
+
+    public String getPrivilegeLevel() {
+        return privilegeLevel;
+    }
+
+    public void setPrivilegeLevel(String privilegeLevel) {
+        this.privilegeLevel = privilegeLevel;
+    }
+
+    public boolean isTwoFactorEnabled() {
+        return twoFactorEnabled;
+    }
+
+    public void setTwoFactorEnabled(boolean twoFactorEnabled) {
+        this.twoFactorEnabled = twoFactorEnabled;
+    }
+
+    public boolean isTwoFactorVerified() {
+        return twoFactorVerified;
+    }
+
+    public void setTwoFactorVerified(boolean twoFactorVerified) {
+        this.twoFactorVerified = twoFactorVerified;
     }
 
     public String getTimeZone() {

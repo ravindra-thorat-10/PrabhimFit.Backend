@@ -80,6 +80,9 @@ class MembershipPlanControllerTest {
     @Autowired
     private MemberActivityLogRepository memberActivityLogRepository;
 
+    @Autowired
+    private com.example.prabhim.repository.LeadRepository leadRepository;
+
     private String authToken;
 
     @BeforeEach
@@ -89,6 +92,7 @@ class MembershipPlanControllerTest {
                 .apply(springSecurity())
                 .build();
 
+        leadRepository.deleteAll();
         attendanceRepository.deleteAll();
         membershipRepository.deleteAll();
         paymentRepository.deleteAll();

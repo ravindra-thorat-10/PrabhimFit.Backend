@@ -81,6 +81,9 @@ class TrainerControllerTest {
     @Autowired
     private TrainerRepository trainerRepository;
 
+    @Autowired
+    private com.example.prabhim.repository.LeadRepository leadRepository;
+
     private String authToken;
 
     @BeforeEach
@@ -90,6 +93,7 @@ class TrainerControllerTest {
                 .apply(springSecurity())
                 .build();
 
+        leadRepository.deleteAll();
         attendanceRepository.deleteAll();
         membershipRepository.deleteAll();
         paymentRepository.deleteAll();
