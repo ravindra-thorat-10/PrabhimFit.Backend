@@ -8,20 +8,21 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.prabhim.dto.ApiResponse;
-import com.example.prabhim.dto.report.AttendanceReportResponse;
-import com.example.prabhim.dto.report.FinancialReportResponse;
-import com.example.prabhim.dto.report.GymOverviewReportResponse;
-import com.example.prabhim.dto.report.MembershipReportResponse;
+import com.example.prabhim.dto.report.ReportFilterRequest;
+import com.example.prabhim.dto.report.StudioAnalyticsReportResponse;
 import com.example.prabhim.entity.enums.PaymentStatus;
 import com.example.prabhim.service.ReportService;
 
 @RestController
-@RequestMapping({ "/api/v1/reports", "/api/v1/analytics" })
+@RequestMapping("/api/v1/reports")
 @CrossOrigin(origins = "*")
 public class ReportController {
 
@@ -31,84 +32,63 @@ public class ReportController {
         this.reportService = reportService;
     }
 
-    // 1. Gym Overview / KPI Dashboard Report (JSON)
-    @GetMapping({ "/overview", "/overview/", "/dashboard", "/dashboard/" })
-    public ResponseEntity<ApiResponse<GymOverviewReportResponse>> getGymOverview() {
-        GymOverviewReportResponse report = reportService.getGymOverviewReport();
-        return ResponseEntity.ok(ApiResponse.success("Gym overview report generated successfully", report));
-    }
-
-    // 2. Financial & Revenue Report (JSON)
-    @GetMapping({ "/financial", "/financial/", "/revenue", "/revenue/" })
-    public ResponseEntity<ApiResponse<FinancialReportResponse>> getFinancialReport(
+    // 1. Get Studio Analytics & Executive Report (GET)
+    @GetMapping({ "", "/" })
+    public ResponseEntity<ApiResponse<StudioAnalyticsReportResponse>> getStudioAnalytics(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(required = false) PaymentStatus status,
             @RequestParam(required = false) String paymentMethod) {
-        FinancialReportResponse report = reportService.getFinancialReport(startDate, endDate, status, paymentMethod);
-        return ResponseEntity.ok(ApiResponse.success("Financial & revenue report generated successfully", report));
+
+        StudioAnalyticsReportResponse report = reportService.getStudioAnalyticsReport(startDate, endDate, status, paymentMethod);
+        return ResponseEntity.ok(ApiResponse.success("Studio analytics report generated successfully", report));
     }
 
-    // 3. Attendance Report (JSON)
-    @GetMapping({ "/attendance", "/attendance/" })
-    public ResponseEntity<ApiResponse<AttendanceReportResponse>> getAttendanceReport(
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        AttendanceReportResponse report = reportService.getAttendanceReport(startDate, endDate);
-        return ResponseEntity.ok(ApiResponse.success("Attendance report generated successfully", report));
+    // 2. Filter Studio Analytics & Executive Report (POST with Request Body)
+    @PostMapping({ "", "/", "/filter", "/filter/" })
+    public ResponseEntity<ApiResponse<StudioAnalyticsReportResponse>> filterStudioAnalytics(
+            @RequestBody(required = false) ReportFilterRequest request) {
+
+        LocalDate startDate = request != null ? request.getStartDate() : null;
+        LocalDate endDate = request != null ? request.getEndDate() : null;
+        PaymentStatus status = request != null ? request.getStatus() : null;
+        String paymentMethod = request != null ? request.getPaymentMethod() : null;
+
+        StudioAnalyticsReportResponse report = reportService.getStudioAnalyticsReport(startDate, endDate, status, paymentMethod);
+        return ResponseEntity.ok(ApiResponse.success("Studio analytics report filtered successfully", report));
     }
 
-    // 4. Membership & Plan Distribution Report (JSON)
-    @GetMapping({ "/memberships", "/memberships/", "/plans", "/plans/" })
-    public ResponseEntity<ApiResponse<MembershipReportResponse>> getMembershipReport() {
-        MembershipReportResponse report = reportService.getMembershipReport();
-        return ResponseEntity.ok(ApiResponse.success("Membership report generated successfully", report));
-    }
-
-    // 5. Export Gym Overview Report (CSV)
-    @GetMapping({ "/overview/export", "/overview/export/", "/dashboard/export", "/dashboard/export/" })
-    public ResponseEntity<byte[]> exportGymOverviewCsv() {
-        byte[] csvBytes = reportService.exportGymOverviewCsv();
-        String filename = "gym_overview_report_" + LocalDate.now() + ".csv";
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
-                .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
-                .body(csvBytes);
-    }
-
-    // 6. Export Financial Report (CSV)
-    @GetMapping({ "/financial/export", "/financial/export/", "/revenue/export", "/revenue/export/" })
-    public ResponseEntity<byte[]> exportFinancialCsv(
+    // 3. Download CSV Report by Type (GET) - matches frontend api.get('/reports/export/' + type)
+    @GetMapping({ "/export/{type}", "/export/{type}/" })
+    public ResponseEntity<byte[]> exportReportByType(
+            @PathVariable String type,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(required = false) PaymentStatus status,
             @RequestParam(required = false) String paymentMethod) {
-        byte[] csvBytes = reportService.exportFinancialReportCsv(startDate, endDate, status, paymentMethod);
-        String filename = "financial_report_" + LocalDate.now() + ".csv";
+
+        byte[] csvBytes = reportService.exportReportByType(type, startDate, endDate, status, paymentMethod);
+        String filename = "PrabhimFit_" + type.substring(0, 1).toUpperCase() + type.substring(1) + "_Report_" + LocalDate.now() + ".csv";
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
                 .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
                 .body(csvBytes);
     }
 
-    // 7. Export Attendance Report (CSV)
-    @GetMapping({ "/attendance/export", "/attendance/export/" })
-    public ResponseEntity<byte[]> exportAttendanceCsv(
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        byte[] csvBytes = reportService.exportAttendanceReportCsv(startDate, endDate);
-        String filename = "attendance_report_" + LocalDate.now() + ".csv";
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
-                .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
-                .body(csvBytes);
-    }
+    // 4. Download CSV Report with Filter Body (POST)
+    @PostMapping({ "/export", "/export/", "/export/{type}", "/export/{type}/" })
+    public ResponseEntity<byte[]> exportReportByPost(
+            @PathVariable(required = false) String type,
+            @RequestBody(required = false) ReportFilterRequest request) {
 
-    // 8. Export Membership Report (CSV)
-    @GetMapping({ "/memberships/export", "/memberships/export/", "/plans/export", "/plans/export/" })
-    public ResponseEntity<byte[]> exportMembershipCsv() {
-        byte[] csvBytes = reportService.exportMembershipReportCsv();
-        String filename = "membership_report_" + LocalDate.now() + ".csv";
+        String reportType = type != null ? type : (request != null && request.getType() != null ? request.getType() : "members");
+        LocalDate startDate = request != null ? request.getStartDate() : null;
+        LocalDate endDate = request != null ? request.getEndDate() : null;
+        PaymentStatus status = request != null ? request.getStatus() : null;
+        String paymentMethod = request != null ? request.getPaymentMethod() : null;
+
+        byte[] csvBytes = reportService.exportReportByType(reportType, startDate, endDate, status, paymentMethod);
+        String filename = "PrabhimFit_" + reportType.substring(0, 1).toUpperCase() + reportType.substring(1) + "_Report_" + LocalDate.now() + ".csv";
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
                 .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))

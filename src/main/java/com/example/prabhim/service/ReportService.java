@@ -2,27 +2,20 @@ package com.example.prabhim.service;
 
 import java.time.LocalDate;
 
-import com.example.prabhim.dto.report.AttendanceReportResponse;
-import com.example.prabhim.dto.report.FinancialReportResponse;
-import com.example.prabhim.dto.report.GymOverviewReportResponse;
-import com.example.prabhim.dto.report.MembershipReportResponse;
+import com.example.prabhim.dto.report.StudioAnalyticsReportResponse;
 import com.example.prabhim.entity.enums.PaymentStatus;
 
 public interface ReportService {
 
-    GymOverviewReportResponse getGymOverviewReport();
+    StudioAnalyticsReportResponse getStudioAnalyticsReport(LocalDate startDate, LocalDate endDate, PaymentStatus status, String paymentMethod);
 
-    FinancialReportResponse getFinancialReport(LocalDate startDate, LocalDate endDate, PaymentStatus status, String paymentMethod);
+    byte[] exportReportByType(String type, LocalDate startDate, LocalDate endDate, PaymentStatus status, String paymentMethod);
 
-    AttendanceReportResponse getAttendanceReport(LocalDate startDate, LocalDate endDate);
+    byte[] exportMembersCsv();
 
-    MembershipReportResponse getMembershipReport();
+    byte[] exportPaymentsCsv(LocalDate startDate, LocalDate endDate, PaymentStatus status, String paymentMethod);
 
-    byte[] exportGymOverviewCsv();
-
-    byte[] exportFinancialReportCsv(LocalDate startDate, LocalDate endDate, PaymentStatus status, String paymentMethod);
+    byte[] exportTrainersCsv();
 
     byte[] exportAttendanceReportCsv(LocalDate startDate, LocalDate endDate);
-
-    byte[] exportMembershipReportCsv();
 }
