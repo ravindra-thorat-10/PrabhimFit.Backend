@@ -40,6 +40,12 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(ex.getMessage()));
     }
 
+    @ExceptionHandler(LeadNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleLeadNotFoundException(LeadNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(ex.getMessage()));
+    }
+
     @ExceptionHandler(PlanAlreadyExistsException.class)
     public ResponseEntity<ApiResponse<Object>> handlePlanAlreadyExistsException(PlanAlreadyExistsException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
