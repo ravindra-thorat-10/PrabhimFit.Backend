@@ -140,6 +140,15 @@ public class MembershipPlan {
         this.durationMonths = durationMonths;
     }
 
+    public String getPlanType() {
+        if (durationMonths != null) {
+            if (durationMonths >= 12) return "ELITE";
+            if (durationMonths >= 6) return "PREMIUM";
+            if (durationMonths >= 3) return "STANDARD";
+        }
+        return "BASIC";
+    }
+
     public String getFeatures() {
         return features;
     }

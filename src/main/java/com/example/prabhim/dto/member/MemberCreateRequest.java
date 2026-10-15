@@ -7,10 +7,12 @@ import java.util.UUID;
 import com.example.prabhim.entity.enums.Gender;
 import com.example.prabhim.entity.enums.MemberStatus;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class MemberCreateRequest {
 
     private String memberCode;
@@ -257,5 +259,67 @@ public class MemberCreateRequest {
 
     public void setPaymentMethod(String paymentMethod) {
         this.paymentMethod = paymentMethod;
+    }
+
+    // Frontend Aliases & Tolerances
+    public String getAvatar() {
+        return profileImage;
+    }
+
+    public void setAvatar(String avatar) {
+        if (this.profileImage == null || this.profileImage.trim().isEmpty()) {
+            this.profileImage = avatar;
+        }
+    }
+
+    public LocalDate getDob() {
+        return dateOfBirth;
+    }
+
+    public void setDob(LocalDate dob) {
+        if (this.dateOfBirth == null) {
+            this.dateOfBirth = dob;
+        }
+    }
+
+    public BigDecimal getPaidAmount() {
+        return amountReceived;
+    }
+
+    public void setPaidAmount(BigDecimal paidAmount) {
+        if (this.amountReceived == null) {
+            this.amountReceived = paidAmount;
+        }
+    }
+
+    public BigDecimal getPrice() {
+        return planPrice;
+    }
+
+    public void setPrice(BigDecimal price) {
+        if (this.planPrice == null) {
+            this.planPrice = price;
+        }
+    }
+
+    public Integer getDurationMonths() {
+        return planDurationMonths;
+    }
+
+    public void setDurationMonths(Integer durationMonths) {
+        if (this.planDurationMonths == null) {
+            this.planDurationMonths = durationMonths;
+        }
+    }
+
+    public void setEmergencyContact(java.util.Map<String, Object> contact) {
+        if (contact != null) {
+            if ((this.emergencyContactName == null || this.emergencyContactName.trim().isEmpty()) && contact.get("name") != null) {
+                this.emergencyContactName = String.valueOf(contact.get("name"));
+            }
+            if ((this.emergencyContactPhone == null || this.emergencyContactPhone.trim().isEmpty()) && contact.get("phone") != null) {
+                this.emergencyContactPhone = String.valueOf(contact.get("phone"));
+            }
+        }
     }
 }

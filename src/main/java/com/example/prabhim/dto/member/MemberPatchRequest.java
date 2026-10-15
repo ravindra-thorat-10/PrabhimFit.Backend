@@ -6,9 +6,11 @@ import java.util.UUID;
 import com.example.prabhim.entity.enums.Gender;
 import com.example.prabhim.entity.enums.MemberStatus;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class MemberPatchRequest {
 
     private String memberCode;
@@ -194,5 +196,46 @@ public class MemberPatchRequest {
 
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
+    }
+
+    // Frontend Aliases & Tolerances
+    public String getAvatar() {
+        return profileImage;
+    }
+
+    public void setAvatar(String avatar) {
+        if (this.profileImage == null || this.profileImage.trim().isEmpty()) {
+            this.profileImage = avatar;
+        }
+    }
+
+    public LocalDate getDob() {
+        return dateOfBirth;
+    }
+
+    public void setDob(LocalDate dob) {
+        if (this.dateOfBirth == null) {
+            this.dateOfBirth = dob;
+        }
+    }
+
+    public void setAssignedTrainer(Object trainer) {
+        if (trainer instanceof String && !((String) trainer).trim().isEmpty()) {
+            try {
+                this.trainerId = UUID.fromString((String) trainer);
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    public void setEmergencyContact(java.util.Map<String, Object> contact) {
+        if (contact != null) {
+            if ((this.emergencyContactName == null || this.emergencyContactName.trim().isEmpty()) && contact.get("name") != null) {
+                this.emergencyContactName = String.valueOf(contact.get("name"));
+            }
+            if ((this.emergencyContactPhone == null || this.emergencyContactPhone.trim().isEmpty()) && contact.get("phone") != null) {
+                this.emergencyContactPhone = String.valueOf(contact.get("phone"));
+            }
+        }
     }
 }

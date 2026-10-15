@@ -2,11 +2,14 @@ package com.example.prabhim.dto.member;
 
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class MemberRenewalRequest {
 
+    private String planId;
     private String planName;
     private String planType;
 
@@ -77,5 +80,23 @@ public class MemberRenewalRequest {
 
     public void setAutoRenew(Boolean autoRenew) {
         this.autoRenew = autoRenew;
+    }
+
+    public String getPlanId() {
+        return planId;
+    }
+
+    public void setPlanId(String planId) {
+        this.planId = planId;
+    }
+
+    public Integer getMonths() {
+        return durationMonths;
+    }
+
+    public void setMonths(Integer months) {
+        if (months != null && months > 0) {
+            this.durationMonths = months;
+        }
     }
 }

@@ -88,6 +88,7 @@ public class SecurityConfig {
                         .requestMatchers(org.springframework.http.HttpMethod.GET,
                                 "/api/v1/membership-plans/**",
                                 "/api/v1/plans/**",
+                                "/api/v1/memberships/**",
                                 "/api/v1/trainers/**",
                                 "/api/v1/attendance/**",
                                 "/api/v1/workouts/**",
@@ -105,7 +106,15 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/v1/auth/logout/",
                                 "/api/v1/auth/sessions/",
-                                "/api/v1/auth/logout-all/"
+                                "/api/v1/auth/logout-all/",
+                                "/api/v1/auth/me",
+                                "/api/v1/auth/me/",
+                                "/api/v1/auth/profile",
+                                "/api/v1/auth/profile/",
+                                "/api/v1/auth/change-password",
+                                "/api/v1/auth/change-password/",
+                                "/api/v1/profile/**",
+                                "/api/profile/**"
                         ).authenticated()
                         .anyRequest().authenticated()
                 )

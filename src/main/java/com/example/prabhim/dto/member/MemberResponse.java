@@ -1,5 +1,6 @@
 package com.example.prabhim.dto.member;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -239,5 +240,72 @@ public class MemberResponse {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    // Frontend Aliases & Tolerances
+    public String getAvatar() {
+        return profileImage;
+    }
+
+    public void setAvatar(String avatar) {
+        if (this.profileImage == null || this.profileImage.trim().isEmpty()) {
+            this.profileImage = avatar;
+        }
+    }
+
+    public String getPlanName() {
+        return currentPlan != null ? currentPlan.getPlanName() : null;
+    }
+
+    public String getPlanType() {
+        return currentPlan != null ? currentPlan.getPlanType() : null;
+    }
+
+    public LocalDate getStartDate() {
+        return (currentPlan != null && currentPlan.getStartDate() != null) ? currentPlan.getStartDate() : joinDate;
+    }
+
+    public LocalDate getEndDate() {
+        return currentPlan != null ? currentPlan.getEndDate() : null;
+    }
+
+    public BigDecimal getPlanPrice() {
+        return currentPlan != null ? currentPlan.getPrice() : null;
+    }
+
+    public BigDecimal getPrice() {
+        return currentPlan != null ? currentPlan.getPrice() : null;
+    }
+
+    public BigDecimal getPaidAmount() {
+        return currentPlan != null ? currentPlan.getPrice() : null;
+    }
+
+    public MembershipDto getMembershipPlan() {
+        return currentPlan;
+    }
+
+    public MembershipDto getMembership() {
+        return currentPlan;
+    }
+
+    public TrainerSummaryDto getAssignedTrainer() {
+        return trainer;
+    }
+
+    public String getAssignedTrainerName() {
+        return trainer != null ? trainer.getFullName() : null;
+    }
+
+    public Integer getPlanDurationMonths() {
+        if (currentPlan != null && currentPlan.getStartDate() != null && currentPlan.getEndDate() != null) {
+            long months = java.time.temporal.ChronoUnit.MONTHS.between(currentPlan.getStartDate(), currentPlan.getEndDate());
+            return months > 0 ? (int) months : 1;
+        }
+        return 1;
+    }
+
+    public Integer getDurationMonths() {
+        return getPlanDurationMonths();
     }
 }
