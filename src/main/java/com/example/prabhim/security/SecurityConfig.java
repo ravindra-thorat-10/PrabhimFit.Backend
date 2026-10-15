@@ -81,6 +81,8 @@ public class SecurityConfig {
                                 "/api/v1/auth/resend-otp/",
                                 "/api/v1/auth/login/",
                                 "/api/v1/auth/token/refresh/",
+                                "/api/v1/reports/**",
+                                "/api/v1/analytics/**",
                                 "/error"
                         ).permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET,
