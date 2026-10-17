@@ -4,15 +4,23 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Email;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TrainerUpdateRequest {
 
     private String trainerFullName;
     private String fullName;
+    private String name;
     private String firstName;
     private String lastName;
+    private String first_name;
+    private String last_name;
+
+    private String avatar;
+    private String trainerCode;
 
     @Email(message = "Please provide a valid email address")
     private String email;
@@ -27,6 +35,7 @@ public class TrainerUpdateRequest {
 
     @DecimalMin(value = "0.0", message = "Salary cannot be negative")
     private BigDecimal monthlySalary;
+    private BigDecimal salary;
 
     private String shift;
     private String availability;
@@ -39,6 +48,10 @@ public class TrainerUpdateRequest {
 
     private String status;
 
+    private String tenantId;
+    private String creatorEmail;
+    private String gymId;
+
     public TrainerUpdateRequest() {
     }
 
@@ -49,8 +62,13 @@ public class TrainerUpdateRequest {
         if (fullName != null && !fullName.trim().isEmpty()) {
             return fullName.trim();
         }
-        if (firstName != null && !firstName.trim().isEmpty()) {
-            return (firstName + " " + (lastName != null ? lastName : "")).trim();
+        if (name != null && !name.trim().isEmpty()) {
+            return name.trim();
+        }
+        String f = firstName != null && !firstName.trim().isEmpty() ? firstName : first_name;
+        String l = lastName != null && !lastName.trim().isEmpty() ? lastName : last_name;
+        if (f != null && !f.trim().isEmpty()) {
+            return (f + " " + (l != null ? l : "")).trim();
         }
         return null;
     }
@@ -258,5 +276,89 @@ public class TrainerUpdateRequest {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+        if (this.fullName == null || this.fullName.trim().isEmpty()) {
+            this.fullName = name;
+        }
+    }
+
+    public String getFirst_name() {
+        return first_name;
+    }
+
+    public void setFirst_name(String first_name) {
+        this.first_name = first_name;
+        if (this.firstName == null || this.firstName.trim().isEmpty()) {
+            this.firstName = first_name;
+        }
+    }
+
+    public String getLast_name() {
+        return last_name;
+    }
+
+    public void setLast_name(String last_name) {
+        this.last_name = last_name;
+        if (this.lastName == null || this.lastName.trim().isEmpty()) {
+            this.lastName = last_name;
+        }
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    public String getTrainerCode() {
+        return trainerCode;
+    }
+
+    public void setTrainerCode(String trainerCode) {
+        this.trainerCode = trainerCode;
+    }
+
+    public BigDecimal getSalary() {
+        return salary != null ? salary : monthlySalary;
+    }
+
+    public void setSalary(BigDecimal salary) {
+        this.salary = salary;
+        if (this.monthlySalary == null) {
+            this.monthlySalary = salary;
+        }
+    }
+
+    public String getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public String getCreatorEmail() {
+        return creatorEmail;
+    }
+
+    public void setCreatorEmail(String creatorEmail) {
+        this.creatorEmail = creatorEmail;
+    }
+
+    public String getGymId() {
+        return gymId;
+    }
+
+    public void setGymId(String gymId) {
+        this.gymId = gymId;
     }
 }

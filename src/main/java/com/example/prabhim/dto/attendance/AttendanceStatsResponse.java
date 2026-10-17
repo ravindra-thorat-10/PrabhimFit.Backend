@@ -52,4 +52,28 @@ public class AttendanceStatsResponse {
     public void setSelectedDate(LocalDate selectedDate) {
         this.selectedDate = selectedDate;
     }
+
+    public long getTotalMembers() {
+        return totalRegisteredAthletes;
+    }
+
+    public void setTotalMembers(long totalMembers) {
+        this.totalRegisteredAthletes = totalMembers;
+    }
+
+    public long getPresentToday() {
+        return onTimeCheckInsToday + lateArrivalsToday;
+    }
+
+    public long getCheckedInToday() {
+        return onTimeCheckInsToday + lateArrivalsToday;
+    }
+
+    public long getLateToday() {
+        return lateArrivalsToday;
+    }
+
+    public long getActiveToday() {
+        return currentlyInGym;
+    }
 }

@@ -260,4 +260,46 @@ class TrainerControllerTest {
                         .header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    @DisplayName("5. Trainer Stats (GET /api/v1/trainers/stats)")
+    void testTrainerStats() throws Exception {
+        mockMvc.perform(get("/api/v1/trainers/stats")
+                        .header("Authorization", "Bearer " + authToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success", is(true)))
+                .andExpect(jsonPath("$.data.totalTrainers", notNullValue()))
+                .andExpect(jsonPath("$.data.activeTrainers", notNullValue()));
+
+        // Test with trailing slash
+        mockMvc.perform(get("/api/v1/trainers/stats/")
+                        .header("Authorization", "Bearer " + authToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success", is(true)));
+    }
+
+    @Test
+    @DisplayName("6. Active Trainers & Trainer By Code (GET /api/v1/trainers/active & /code/{code})")
+    void testTrainerActiveAndCode() throws Exception {
+        // Active trainers
+        mockMvc.perform(get("/api/v1/trainers/active")
+                        .header("Authorization", "Bearer " + authToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success", is(true)))
+                .andExpect(jsonPath("$.data", notNullValue()));
+
+        // Trainer by code
+        mockMvc.perform(get("/api/v1/trainers/code/TR-101")
+                        .header("Authorization", "Bearer " + authToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success", is(true)))
+                .andExpect(jsonPath("$.data.trainerCode", is("TR-101")))
+                .andExpect(jsonPath("$.data.fullName", is("Vikram Malhotra")));
+
+        // Trailing slash test
+        mockMvc.perform(get("/api/v1/trainers/")
+                        .header("Authorization", "Bearer " + authToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success", is(true)));
+    }
 }

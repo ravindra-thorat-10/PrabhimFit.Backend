@@ -14,6 +14,7 @@ import com.example.prabhim.dto.workout.WorkoutExerciseRequest;
 import com.example.prabhim.dto.workout.WorkoutRoutineCreateRequest;
 import com.example.prabhim.dto.workout.WorkoutRoutineResponse;
 import com.example.prabhim.dto.workout.WorkoutRoutineUpdateRequest;
+import com.example.prabhim.dto.workout.WorkoutStatsResponse;
 import com.example.prabhim.entity.Member;
 import com.example.prabhim.entity.Trainer;
 import com.example.prabhim.entity.WorkoutExercise;
@@ -57,9 +58,31 @@ public class WorkoutRoutineServiceImpl implements WorkoutRoutineService {
         routine.setStatus(request.getStatus() != null ? request.getStatus().trim() : "ACTIVE");
         routine.setInstructions(request.getInstructions());
 
+        if (request.resolveWeeklyScheduleJson() != null) {
+            routine.setWeeklySchedule(request.resolveWeeklyScheduleJson());
+        }
+
+        if (request.getTenantId() != null && !request.getTenantId().trim().isEmpty()) {
+            routine.setTenantId(request.getTenantId().trim());
+        }
+        if (request.getCreatorEmail() != null && !request.getCreatorEmail().trim().isEmpty()) {
+            routine.setCreatorEmail(request.getCreatorEmail().trim());
+        } else {
+            try {
+                var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+                if (auth != null && auth.getName() != null && !auth.getName().equalsIgnoreCase("anonymousUser")) {
+                    routine.setCreatorEmail(auth.getName());
+                    if (routine.getTenantId() == null || routine.getTenantId().isEmpty()) {
+                        routine.setTenantId(auth.getName());
+                    }
+                }
+            } catch (Exception ignored) {}
+        }
+
         // Associate Member / Athlete if provided
-        if (request.getMemberId() != null) {
-            Member member = memberRepository.findById(request.getMemberId()).orElse(null);
+        UUID resolvedMemberId = request.resolveMemberId();
+        if (resolvedMemberId != null) {
+            Member member = memberRepository.findById(resolvedMemberId).orElse(null);
             if (member != null) {
                 routine.setMember(member);
             } else if (request.getAthleteName() != null) {
@@ -77,8 +100,9 @@ public class WorkoutRoutineServiceImpl implements WorkoutRoutineService {
         }
 
         // Associate Trainer / Coach if provided
-        if (request.getTrainerId() != null) {
-            Trainer trainer = trainerRepository.findById(request.getTrainerId()).orElse(null);
+        UUID resolvedTrainerId = request.resolveTrainerId();
+        if (resolvedTrainerId != null) {
+            Trainer trainer = trainerRepository.findById(resolvedTrainerId).orElse(null);
             if (trainer != null) {
                 routine.setTrainer(trainer);
             } else if (request.getCoachName() != null) {
@@ -153,6 +177,32 @@ public class WorkoutRoutineServiceImpl implements WorkoutRoutineService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<WorkoutRoutineResponse> getWorkoutRoutinesByMemberId(UUID memberId) {
+        return workoutRoutineRepository.findByMemberIdOrderByCreatedAtDesc(memberId).stream()
+                .map(WorkoutRoutineResponse::fromEntity)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public WorkoutRoutineResponse getActiveWorkoutRoutineByMemberId(UUID memberId) {
+        return workoutRoutineRepository.findFirstByMemberIdAndStatusIgnoreCaseOrderByCreatedAtDesc(memberId, "ACTIVE")
+                .map(WorkoutRoutineResponse::fromEntity)
+                .orElse(null);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public WorkoutStatsResponse getWorkoutStats() {
+        long totalRoutines = workoutRoutineRepository.count();
+        long activeRoutines = workoutRoutineRepository.countByStatusIgnoreCase("ACTIVE");
+        long totalExercises = workoutExerciseRepository.count();
+        long totalAthletes = memberRepository.count();
+        return new WorkoutStatsResponse(totalRoutines, activeRoutines, totalExercises, totalAthletes);
+    }
+
+    @Override
     public WorkoutRoutineResponse updateWorkoutRoutine(UUID id, WorkoutRoutineUpdateRequest request) {
         WorkoutRoutine routine = workoutRoutineRepository.findById(id)
                 .orElseThrow(() -> new WorkoutNotFoundException("Workout routine not found with id: " + id));
@@ -177,9 +227,21 @@ public class WorkoutRoutineServiceImpl implements WorkoutRoutineService {
             routine.setInstructions(request.getInstructions().trim());
         }
 
+        if (request.resolveWeeklyScheduleJson() != null) {
+            routine.setWeeklySchedule(request.resolveWeeklyScheduleJson());
+        }
+
+        if (request.getTenantId() != null && !request.getTenantId().trim().isEmpty()) {
+            routine.setTenantId(request.getTenantId().trim());
+        }
+        if (request.getCreatorEmail() != null && !request.getCreatorEmail().trim().isEmpty()) {
+            routine.setCreatorEmail(request.getCreatorEmail().trim());
+        }
+
         // Update Member / Athlete if provided
-        if (request.getMemberId() != null) {
-            Member member = memberRepository.findById(request.getMemberId()).orElse(null);
+        UUID resolvedMemberId = request.resolveMemberId();
+        if (resolvedMemberId != null) {
+            Member member = memberRepository.findById(resolvedMemberId).orElse(null);
             if (member != null) {
                 routine.setMember(member);
             }
@@ -194,8 +256,9 @@ public class WorkoutRoutineServiceImpl implements WorkoutRoutineService {
         }
 
         // Update Trainer / Coach if provided
-        if (request.getTrainerId() != null) {
-            Trainer trainer = trainerRepository.findById(request.getTrainerId()).orElse(null);
+        UUID resolvedTrainerId = request.resolveTrainerId();
+        if (resolvedTrainerId != null) {
+            Trainer trainer = trainerRepository.findById(resolvedTrainerId).orElse(null);
             if (trainer != null) {
                 routine.setTrainer(trainer);
             }

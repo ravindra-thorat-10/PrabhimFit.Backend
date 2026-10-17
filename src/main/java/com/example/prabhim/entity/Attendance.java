@@ -41,6 +41,8 @@ public class Attendance {
 
     private String method = "RFID";
 
+    private String notes;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -139,5 +141,13 @@ public class Attendance {
 
     public void setMethod(String method) {
         this.method = method;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 }
