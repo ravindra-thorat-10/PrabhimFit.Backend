@@ -1,5 +1,6 @@
 package com.example.prabhim.service;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -9,6 +10,7 @@ import com.example.prabhim.dto.workout.WorkoutExerciseRequest;
 import com.example.prabhim.dto.workout.WorkoutRoutineCreateRequest;
 import com.example.prabhim.dto.workout.WorkoutRoutineResponse;
 import com.example.prabhim.dto.workout.WorkoutRoutineUpdateRequest;
+import com.example.prabhim.dto.workout.WorkoutStatsResponse;
 
 public interface WorkoutRoutineService {
 
@@ -18,6 +20,10 @@ public interface WorkoutRoutineService {
 
     WorkoutRoutineResponse getWorkoutRoutineById(UUID id);
 
+    List<WorkoutRoutineResponse> getWorkoutRoutinesByMemberId(UUID memberId);
+
+    WorkoutRoutineResponse getActiveWorkoutRoutineByMemberId(UUID memberId);
+
     WorkoutRoutineResponse updateWorkoutRoutine(UUID id, WorkoutRoutineUpdateRequest request);
 
     void deleteWorkoutRoutine(UUID id);
@@ -25,4 +31,6 @@ public interface WorkoutRoutineService {
     WorkoutRoutineResponse addExercise(UUID routineId, WorkoutExerciseRequest exerciseRequest);
 
     WorkoutRoutineResponse removeExercise(UUID routineId, UUID exerciseId);
+
+    WorkoutStatsResponse getWorkoutStats();
 }

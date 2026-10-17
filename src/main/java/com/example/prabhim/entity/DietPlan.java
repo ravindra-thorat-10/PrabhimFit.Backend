@@ -89,6 +89,24 @@ public class DietPlan {
     @Column(columnDefinition = "TEXT")
     private String notes;
 
+    @Column(name = "goal")
+    private String goal;
+
+    @Column(name = "preference")
+    private String preference;
+
+    @Column(name = "supplements", columnDefinition = "TEXT")
+    private String supplements;
+
+    @Column(name = "weekly_meal_plan", columnDefinition = "TEXT")
+    private String weeklyMealPlan;
+
+    @Column(name = "tenant_id")
+    private String tenantId;
+
+    @Column(name = "creator_email")
+    private String creatorEmail;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -318,5 +336,53 @@ public class DietPlan {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getGoal() {
+        return goal;
+    }
+
+    public void setGoal(String goal) {
+        this.goal = goal;
+    }
+
+    public String getPreference() {
+        return preference;
+    }
+
+    public void setPreference(String preference) {
+        this.preference = preference;
+    }
+
+    public String getSupplements() {
+        return supplements;
+    }
+
+    public void setSupplements(String supplements) {
+        this.supplements = supplements;
+    }
+
+    public String getWeeklyMealPlan() {
+        return weeklyMealPlan;
+    }
+
+    public void setWeeklyMealPlan(String weeklyMealPlan) {
+        this.weeklyMealPlan = weeklyMealPlan;
+    }
+
+    public String getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public String getCreatorEmail() {
+        return creatorEmail;
+    }
+
+    public void setCreatorEmail(String creatorEmail) {
+        this.creatorEmail = creatorEmail;
     }
 }

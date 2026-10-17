@@ -64,12 +64,33 @@ public class DietPlanServiceImpl implements DietPlanService {
         dietPlan.setStartDate(request.getStartDate());
         dietPlan.setEndDate(request.getEndDate());
         dietPlan.setNotes(request.getNotes());
+        dietPlan.setGoal(request.getGoal());
+        dietPlan.setPreference(request.getPreference());
+        dietPlan.setSupplements(request.resolveSupplementsJson());
+        dietPlan.setWeeklyMealPlan(request.resolveWeeklyMealPlanJson());
+
+        if (request.getTenantId() != null && !request.getTenantId().trim().isEmpty()) {
+            dietPlan.setTenantId(request.getTenantId().trim());
+        }
+        if (request.getCreatorEmail() != null && !request.getCreatorEmail().trim().isEmpty()) {
+            dietPlan.setCreatorEmail(request.getCreatorEmail().trim());
+        } else {
+            try {
+                var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+                if (auth != null && auth.getName() != null && !auth.getName().equalsIgnoreCase("anonymousUser")) {
+                    dietPlan.setCreatorEmail(auth.getName());
+                    if (dietPlan.getTenantId() == null || dietPlan.getTenantId().isEmpty()) {
+                        dietPlan.setTenantId(auth.getName());
+                    }
+                }
+            } catch (Exception ignored) {}
+        }
 
         // Associate Athlete / Member
-        resolveAndSetMember(dietPlan, request.getMemberId(), request.getMemberCode(), request.getAthleteName());
+        resolveAndSetMember(dietPlan, request.resolveMemberId(), request.getMemberCode(), request.getAthleteName());
 
         // Associate Coach / Trainer
-        resolveAndSetTrainer(dietPlan, request.getTrainerId(), request.getCoachName());
+        resolveAndSetTrainer(dietPlan, request.resolveTrainerId(), request.getCoachName());
 
         DietPlan saved = dietPlanRepository.save(dietPlan);
         return DietProtocolResponse.fromEntity(saved);
@@ -223,14 +244,37 @@ public class DietPlanServiceImpl implements DietPlanService {
             dietPlan.setNotes(request.getNotes());
         }
 
+        if (request.getGoal() != null) {
+            dietPlan.setGoal(request.getGoal());
+        }
+
+        if (request.getPreference() != null) {
+            dietPlan.setPreference(request.getPreference());
+        }
+
+        if (request.resolveSupplementsJson() != null) {
+            dietPlan.setSupplements(request.resolveSupplementsJson());
+        }
+
+        if (request.resolveWeeklyMealPlanJson() != null) {
+            dietPlan.setWeeklyMealPlan(request.resolveWeeklyMealPlanJson());
+        }
+
+        if (request.getTenantId() != null && !request.getTenantId().trim().isEmpty()) {
+            dietPlan.setTenantId(request.getTenantId().trim());
+        }
+        if (request.getCreatorEmail() != null && !request.getCreatorEmail().trim().isEmpty()) {
+            dietPlan.setCreatorEmail(request.getCreatorEmail().trim());
+        }
+
         // Update Athlete / Member if supplied
         if (request.getMemberId() != null || request.getMemberCode() != null || request.getAthleteName() != null) {
-            resolveAndSetMember(dietPlan, request.getMemberId(), request.getMemberCode(), request.getAthleteName());
+            resolveAndSetMember(dietPlan, request.resolveMemberId(), request.getMemberCode(), request.getAthleteName());
         }
 
         // Update Coach / Trainer if supplied
         if (request.getTrainerId() != null || request.getCoachName() != null) {
-            resolveAndSetTrainer(dietPlan, request.getTrainerId(), request.getCoachName());
+            resolveAndSetTrainer(dietPlan, request.resolveTrainerId(), request.getCoachName());
         }
 
         DietPlan saved = dietPlanRepository.save(dietPlan);

@@ -2,6 +2,9 @@ package com.example.prabhim.dto.attendance;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AttendanceCheckOutRequest {
 
     private String checkOutTime;

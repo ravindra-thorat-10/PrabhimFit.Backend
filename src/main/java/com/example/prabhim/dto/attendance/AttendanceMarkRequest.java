@@ -7,15 +7,20 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AttendanceMarkRequest {
 
     private UUID memberId;
     private String memberIdStr;
     private String memberCode;
+    private String member_code;
     private String memberName;
 
     private LocalDate sessionDate;
     private String sessionDateStr;
+    private String date;
 
     private String checkInTime;
     private String checkOutTime;
@@ -23,6 +28,11 @@ public class AttendanceMarkRequest {
     private String status = "PRESENT";
     private String facility;
     private String verifiedBy;
+    private String notes;
+
+    private String tenantId;
+    private String creatorEmail;
+    private String gymId;
 
     public AttendanceMarkRequest() {
     }
@@ -44,15 +54,16 @@ public class AttendanceMarkRequest {
         if (sessionDate != null) {
             return sessionDate;
         }
-        if (sessionDateStr != null && !sessionDateStr.trim().isEmpty()) {
-            String str = sessionDateStr.trim();
+        String str = sessionDateStr != null && !sessionDateStr.trim().isEmpty() ? sessionDateStr.trim() : date;
+        if (str != null && !str.trim().isEmpty()) {
+            String clean = str.trim();
             try {
-                if (str.contains("-")) {
-                    String[] parts = str.split("-");
+                if (clean.contains("-")) {
+                    String[] parts = clean.split("-");
                     if (parts[0].length() == 4) {
-                        return LocalDate.parse(str, DateTimeFormatter.ISO_LOCAL_DATE);
+                        return LocalDate.parse(clean, DateTimeFormatter.ISO_LOCAL_DATE);
                     } else if (parts[2].length() == 4) {
-                        return LocalDate.parse(str, DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+                        return LocalDate.parse(clean, DateTimeFormatter.ofPattern("dd-MM-yyyy"));
                     }
                 }
             } catch (Exception ignored) {
@@ -183,5 +194,56 @@ public class AttendanceMarkRequest {
 
     public void setVerifiedBy(String verifiedBy) {
         this.verifiedBy = verifiedBy;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getMember_code() {
+        return member_code;
+    }
+
+    public void setMember_code(String member_code) {
+        this.member_code = member_code;
+        if (this.memberCode == null || this.memberCode.trim().isEmpty()) {
+            this.memberCode = member_code;
+        }
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    public String getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public String getCreatorEmail() {
+        return creatorEmail;
+    }
+
+    public void setCreatorEmail(String creatorEmail) {
+        this.creatorEmail = creatorEmail;
+    }
+
+    public String getGymId() {
+        return gymId;
+    }
+
+    public void setGymId(String gymId) {
+        this.gymId = gymId;
     }
 }
