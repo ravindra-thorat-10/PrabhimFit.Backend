@@ -16,6 +16,8 @@ public class AttendanceResponse {
     private String memberCode;
     private String memberAvatar;
     private String memberPhone;
+    private AttendanceMemberSummary member;
+
     private LocalDateTime checkInTime;
     private String checkInTimeFormatted;
     private LocalDateTime checkOutTime;
@@ -23,9 +25,17 @@ public class AttendanceResponse {
     private boolean checkedOut;
     private String status;
     private String verifiedBy;
+    private String markedBy;
     private String facility;
     private String method;
+    private String notes;
+    private String date;
+    private String sessionDateStr;
     private LocalDateTime createdAt;
+
+    private String tenantId;
+    private String creatorEmail;
+    private String gymId;
 
     public AttendanceResponse() {
     }
@@ -39,14 +49,19 @@ public class AttendanceResponse {
         if (att.getMember() != null) {
             Member m = att.getMember();
             resp.setMemberId(m.getId());
-            resp.setMemberName(m.getFirstName() + " " + (m.getLastName() != null ? m.getLastName() : "").trim());
+            String fullName = m.getFirstName() + " " + (m.getLastName() != null ? m.getLastName() : "").trim();
+            resp.setMemberName(fullName);
             resp.setMemberCode(m.getMemberCode());
             resp.setMemberAvatar(m.getAvatar());
             resp.setMemberPhone(m.getPhone());
+            resp.setMember(new AttendanceMemberSummary(m.getId(), fullName, m.getMemberCode(), m.getAvatar(), m.getPhone()));
         }
         resp.setCheckInTime(att.getCheckInTime());
         if (att.getCheckInTime() != null) {
-            resp.setCheckInTimeFormatted(formatTime(att.getCheckInTime()));
+            String formattedTime = formatTime(att.getCheckInTime());
+            resp.setCheckInTimeFormatted(formattedTime);
+            resp.setDate(att.getCheckInTime().toLocalDate().toString());
+            resp.setSessionDateStr(att.getCheckInTime().toLocalDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
         }
         resp.setCheckOutTime(att.getCheckOutTime());
         if (att.getCheckOutTime() != null) {
@@ -56,11 +71,85 @@ public class AttendanceResponse {
             resp.setCheckedOut(false);
         }
         resp.setStatus(att.getStatus() != null ? att.getStatus() : "PRESENT");
-        resp.setVerifiedBy(att.getVerifiedBy() != null ? att.getVerifiedBy() : "Marcus Vance");
+        String verifier = att.getVerifiedBy() != null ? att.getVerifiedBy() : "Marcus Vance";
+        resp.setVerifiedBy(verifier);
+        resp.setMarkedBy(verifier);
         resp.setFacility(att.getFacility() != null ? att.getFacility() : "Downtown Flagship - Studio Turnstiles");
         resp.setMethod(att.getMethod() != null ? att.getMethod() : "RFID");
+        resp.setNotes(att.getNotes());
         resp.setCreatedAt(att.getCreatedAt());
+
+        String email = "";
+        try {
+            var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.getName() != null && !auth.getName().equalsIgnoreCase("anonymousUser")) {
+                email = auth.getName();
+            }
+        } catch (Exception ignored) {}
+        resp.setTenantId(email);
+        resp.setCreatorEmail(email);
+        resp.setGymId(email);
+
         return resp;
+    }
+
+    public static class AttendanceMemberSummary {
+        private UUID id;
+        private String fullName;
+        private String memberCode;
+        private String avatar;
+        private String phone;
+
+        public AttendanceMemberSummary() {
+        }
+
+        public AttendanceMemberSummary(UUID id, String fullName, String memberCode, String avatar, String phone) {
+            this.id = id;
+            this.fullName = fullName;
+            this.memberCode = memberCode;
+            this.avatar = avatar;
+            this.phone = phone;
+        }
+
+        public UUID getId() {
+            return id;
+        }
+
+        public void setId(UUID id) {
+            this.id = id;
+        }
+
+        public String getFullName() {
+            return fullName;
+        }
+
+        public void setFullName(String fullName) {
+            this.fullName = fullName;
+        }
+
+        public String getMemberCode() {
+            return memberCode;
+        }
+
+        public void setMemberCode(String memberCode) {
+            this.memberCode = memberCode;
+        }
+
+        public String getAvatar() {
+            return avatar;
+        }
+
+        public void setAvatar(String avatar) {
+            this.avatar = avatar;
+        }
+
+        public String getPhone() {
+            return phone;
+        }
+
+        public void setPhone(String phone) {
+            this.phone = phone;
+        }
     }
 
     private static String formatTime(LocalDateTime dt) {
@@ -194,5 +283,69 @@ public class AttendanceResponse {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public AttendanceMemberSummary getMember() {
+        return member;
+    }
+
+    public void setMember(AttendanceMemberSummary member) {
+        this.member = member;
+    }
+
+    public String getMarkedBy() {
+        return markedBy != null ? markedBy : verifiedBy;
+    }
+
+    public void setMarkedBy(String markedBy) {
+        this.markedBy = markedBy;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getSessionDateStr() {
+        return sessionDateStr;
+    }
+
+    public void setSessionDateStr(String sessionDateStr) {
+        this.sessionDateStr = sessionDateStr;
+    }
+
+    public String getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public String getCreatorEmail() {
+        return creatorEmail;
+    }
+
+    public void setCreatorEmail(String creatorEmail) {
+        this.creatorEmail = creatorEmail;
+    }
+
+    public String getGymId() {
+        return gymId;
+    }
+
+    public void setGymId(String gymId) {
+        this.gymId = gymId;
     }
 }

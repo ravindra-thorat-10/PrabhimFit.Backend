@@ -115,4 +115,24 @@ public class WorkoutExerciseResponse {
     public void setSetsRepsDisplay(String setsRepsDisplay) {
         this.setsRepsDisplay = setsRepsDisplay;
     }
+
+    public String getName() {
+        return exerciseName;
+    }
+
+    public String getWeight() {
+        return targetWeight;
+    }
+
+    public String getRestTime() {
+        return restInterval;
+    }
+
+    public String getInstructions() {
+        return notes;
+    }
+
+    public String get_id() {
+        return id != null ? id.toString() : null;
+    }
 }

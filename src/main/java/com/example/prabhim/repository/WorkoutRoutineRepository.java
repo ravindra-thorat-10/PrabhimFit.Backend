@@ -1,6 +1,7 @@
 package com.example.prabhim.repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,4 +18,9 @@ public interface WorkoutRoutineRepository extends JpaRepository<WorkoutRoutine, 
     List<WorkoutRoutine> findByTrainerIdOrderByCreatedAtDesc(UUID trainerId);
 
     List<WorkoutRoutine> findByStatusIgnoreCase(String status);
+
+    long countByStatusIgnoreCase(String status);
+
+    Optional<WorkoutRoutine> findFirstByMemberIdAndStatusIgnoreCaseOrderByCreatedAtDesc(UUID memberId, String status);
 }
+

@@ -174,6 +174,9 @@ public class TrainerServiceImpl implements TrainerService {
         trainer.setJoiningDate(request.resolveJoiningDate());
         trainer.setBio(request.resolveBio());
         trainer.setStatus(request.getStatus() != null ? request.getStatus().toUpperCase() : "ACTIVE");
+        trainer.setAvatar(request.getAvatar() != null && !request.getAvatar().trim().isEmpty()
+                ? request.getAvatar().trim()
+                : "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=150&auto=format&fit=crop&q=80");
 
         Trainer saved = trainerRepository.save(trainer);
         return mapToResponse(saved);
@@ -226,6 +229,10 @@ public class TrainerServiceImpl implements TrainerService {
 
         if (request.getStatus() != null && !request.getStatus().trim().isEmpty()) {
             trainer.setStatus(request.getStatus().trim().toUpperCase());
+        }
+
+        if (request.getAvatar() != null && !request.getAvatar().trim().isEmpty()) {
+            trainer.setAvatar(request.getAvatar().trim());
         }
 
         Trainer updated = trainerRepository.save(trainer);

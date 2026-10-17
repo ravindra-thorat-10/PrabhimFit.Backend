@@ -25,8 +25,10 @@ import com.example.prabhim.dto.workout.WorkoutExerciseRequest;
 import com.example.prabhim.dto.workout.WorkoutRoutineCreateRequest;
 import com.example.prabhim.dto.workout.WorkoutRoutineResponse;
 import com.example.prabhim.dto.workout.WorkoutRoutineUpdateRequest;
+import com.example.prabhim.dto.workout.WorkoutStatsResponse;
 import com.example.prabhim.service.WorkoutRoutineService;
 
+import java.util.List;
 import jakarta.validation.Valid;
 
 @RestController
@@ -58,7 +60,7 @@ public class WorkoutController {
             @RequestParam(required = false) UUID trainerId,
             @RequestParam(required = false) String status,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "100") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir
     ) {
@@ -71,6 +73,26 @@ public class WorkoutController {
                 search, memberId, trainerId, status, pageable
         );
         return ResponseEntity.ok(ApiResponse.success("Workout routines retrieved successfully", routines));
+    }
+
+    // Stats endpoint - defined before /{id} to avoid UUID parse error
+    @GetMapping({"/stats", "/stats/"})
+    public ResponseEntity<ApiResponse<WorkoutStatsResponse>> getWorkoutStats() {
+        WorkoutStatsResponse stats = workoutRoutineService.getWorkoutStats();
+        return ResponseEntity.ok(ApiResponse.success("Workout stats retrieved successfully", stats));
+    }
+
+    // Member-specific routines
+    @GetMapping({"/member/{memberId}", "/member/{memberId}/"})
+    public ResponseEntity<ApiResponse<List<WorkoutRoutineResponse>>> getWorkoutRoutinesByMember(@PathVariable UUID memberId) {
+        List<WorkoutRoutineResponse> routines = workoutRoutineService.getWorkoutRoutinesByMemberId(memberId);
+        return ResponseEntity.ok(ApiResponse.success("Member workout routines retrieved successfully", routines));
+    }
+
+    @GetMapping({"/member/{memberId}/active", "/member/{memberId}/active/"})
+    public ResponseEntity<ApiResponse<WorkoutRoutineResponse>> getActiveWorkoutRoutineByMember(@PathVariable UUID memberId) {
+        WorkoutRoutineResponse routine = workoutRoutineService.getActiveWorkoutRoutineByMemberId(memberId);
+        return ResponseEntity.ok(ApiResponse.success("Active workout routine retrieved successfully", routine));
     }
 
     // 3. Get One Workout Routine by ID (Full Routine)

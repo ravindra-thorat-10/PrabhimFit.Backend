@@ -26,6 +26,14 @@ public class TrainerResponse {
     private String avatar;
     private String status;
     private long assignedClientsCount;
+    private long assignedMembersCount;
+    private long assignedMembers;
+    private String name;
+    private BigDecimal salary;
+    private String availability;
+    private String tenantId;
+    private String creatorEmail;
+    private String gymId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -40,6 +48,7 @@ public class TrainerResponse {
         resp.setId(trainer.getId());
         resp.setTrainerCode(trainer.getTrainerCode());
         resp.setFullName(trainer.getFullName());
+        resp.setName(trainer.getFullName());
         resp.setFirstName(trainer.getFirstName());
         resp.setLastName(trainer.getLastName());
         resp.setEmail(trainer.getEmail());
@@ -47,15 +56,31 @@ public class TrainerResponse {
         resp.setSpecialization(trainer.getSpecialization());
         resp.setExperience(trainer.getExperience());
         resp.setMonthlySalary(trainer.getMonthlySalary());
+        resp.setSalary(trainer.getMonthlySalary());
         if (trainer.getMonthlySalary() != null) {
             resp.setMonthlySalaryFormatted(TrainerStatsResponse.formatInr(trainer.getMonthlySalary()));
         }
         resp.setShift(trainer.getShift());
+        resp.setAvailability(trainer.getShift());
         resp.setJoiningDate(trainer.getJoiningDate());
         resp.setBio(trainer.getBio());
         resp.setAvatar(trainer.getAvatar());
         resp.setStatus(trainer.getStatus());
         resp.setAssignedClientsCount(assignedClientsCount);
+        resp.setAssignedMembersCount(assignedClientsCount);
+        resp.setAssignedMembers(assignedClientsCount);
+
+        String email = "";
+        try {
+            var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.getName() != null && !auth.getName().equalsIgnoreCase("anonymousUser")) {
+                email = auth.getName();
+            }
+        } catch (Exception ignored) {}
+        resp.setTenantId(email);
+        resp.setCreatorEmail(email);
+        resp.setGymId(email);
+
         resp.setCreatedAt(trainer.getCreatedAt());
         resp.setUpdatedAt(trainer.getUpdatedAt());
         return resp;
@@ -211,5 +236,73 @@ public class TrainerResponse {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public long getAssignedMembersCount() {
+        return assignedMembersCount;
+    }
+
+    public void setAssignedMembersCount(long assignedMembersCount) {
+        this.assignedMembersCount = assignedMembersCount;
+    }
+
+    public long getAssignedMembers() {
+        return assignedMembers;
+    }
+
+    public void setAssignedMembers(long assignedMembers) {
+        this.assignedMembers = assignedMembers;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public BigDecimal getSalary() {
+        return salary;
+    }
+
+    public void setSalary(BigDecimal salary) {
+        this.salary = salary;
+    }
+
+    public String getAvailability() {
+        return availability;
+    }
+
+    public void setAvailability(String availability) {
+        this.availability = availability;
+    }
+
+    public String getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public String getCreatorEmail() {
+        return creatorEmail;
+    }
+
+    public void setCreatorEmail(String creatorEmail) {
+        this.creatorEmail = creatorEmail;
+    }
+
+    public String getGymId() {
+        return gymId;
+    }
+
+    public void setGymId(String gymId) {
+        this.gymId = gymId;
+    }
+
+    public String get_id() {
+        return id != null ? id.toString() : null;
     }
 }

@@ -236,4 +236,53 @@ class AttendanceControllerTest {
                         .header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    @DisplayName("5. Attendance Stats & Export (GET /api/v1/attendance/stats & /export)")
+    void testAttendanceStatsAndExport() throws Exception {
+        // Test /stats
+        mockMvc.perform(get("/api/v1/attendance/stats")
+                        .header("Authorization", "Bearer " + authToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success", is(true)))
+                .andExpect(jsonPath("$.data.totalMembers", notNullValue()))
+                .andExpect(jsonPath("$.data.presentToday", notNullValue()));
+
+        // Test /stats/ with trailing slash
+        mockMvc.perform(get("/api/v1/attendance/stats/")
+                        .header("Authorization", "Bearer " + authToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success", is(true)));
+
+        // Test /export
+        mockMvc.perform(get("/api/v1/attendance/export")
+                        .header("Authorization", "Bearer " + authToken))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", containsString("text/csv")))
+                .andExpect(content().string(containsString("Attendance ID,Member Code,Member Name,Phone,Check-In Time,Check-Out Time,Status,Verified By,Facility")));
+    }
+
+    @Test
+    @DisplayName("6. Dedicated Check-Out Endpoint (POST /api/v1/attendance/{id}/checkout)")
+    void testCheckoutEndpoint() throws Exception {
+        MvcResult listResult = mockMvc.perform(get("/api/v1/attendance/")
+                        .header("Authorization", "Bearer " + authToken))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        JsonNode json = objectMapper.readTree(listResult.getResponse().getContentAsString());
+        String attendanceIdStr = json.get("data").get("content").get(0).get("id").asText();
+        UUID attendanceId = UUID.fromString(attendanceIdStr);
+
+        AttendanceCheckOutRequest checkoutReq = new AttendanceCheckOutRequest();
+        checkoutReq.setCheckOutTime("09:30 pm");
+
+        mockMvc.perform(post("/api/v1/attendance/" + attendanceId + "/checkout")
+                        .header("Authorization", "Bearer " + authToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(checkoutReq)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success", is(true)))
+                .andExpect(jsonPath("$.data.checkedOut", is(true)));
+    }
 }

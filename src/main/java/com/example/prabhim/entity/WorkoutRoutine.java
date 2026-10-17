@@ -57,6 +57,15 @@ public class WorkoutRoutine {
     @Column(columnDefinition = "TEXT")
     private String instructions;
 
+    @Column(name = "weekly_schedule", columnDefinition = "TEXT")
+    private String weeklySchedule;
+
+    @Column(name = "tenant_id")
+    private String tenantId;
+
+    @Column(name = "creator_email")
+    private String creatorEmail;
+
     @OneToMany(mappedBy = "workoutRoutine", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("orderIndex ASC")
     private List<WorkoutExercise> exercises = new ArrayList<>();
@@ -214,5 +223,29 @@ public class WorkoutRoutine {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getWeeklySchedule() {
+        return weeklySchedule;
+    }
+
+    public void setWeeklySchedule(String weeklySchedule) {
+        this.weeklySchedule = weeklySchedule;
+    }
+
+    public String getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public String getCreatorEmail() {
+        return creatorEmail;
+    }
+
+    public void setCreatorEmail(String creatorEmail) {
+        this.creatorEmail = creatorEmail;
     }
 }

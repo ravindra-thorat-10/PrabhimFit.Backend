@@ -236,6 +236,9 @@ public class AttendanceServiceImpl implements AttendanceService {
         attendance.setFacility(request.getFacility() != null ? request.getFacility() : "Downtown Flagship - Studio Turnstiles");
         attendance.setVerifiedBy(request.getVerifiedBy() != null ? request.getVerifiedBy() : "Marcus Vance");
         attendance.setMethod("MANUAL");
+        if (request.getNotes() != null) {
+            attendance.setNotes(request.getNotes().trim());
+        }
 
         Attendance saved = attendanceRepository.save(attendance);
         return AttendanceResponse.fromEntity(saved);
@@ -272,6 +275,9 @@ public class AttendanceServiceImpl implements AttendanceService {
             }
             if (request.getVerifiedBy() != null && !request.getVerifiedBy().trim().isEmpty()) {
                 attendance.setVerifiedBy(request.getVerifiedBy().trim());
+            }
+            if (request.getNotes() != null) {
+                attendance.setNotes(request.getNotes().trim());
             }
         }
 

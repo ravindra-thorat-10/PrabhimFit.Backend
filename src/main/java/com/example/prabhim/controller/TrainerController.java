@@ -1,5 +1,6 @@
 package com.example.prabhim.controller;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -23,13 +24,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.prabhim.dto.ApiResponse;
 import com.example.prabhim.dto.trainer.TrainerCreateRequest;
 import com.example.prabhim.dto.trainer.TrainerResponse;
+import com.example.prabhim.dto.trainer.TrainerStatsResponse;
 import com.example.prabhim.dto.trainer.TrainerUpdateRequest;
 import com.example.prabhim.service.TrainerService;
 
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/v1/trainers")
+@RequestMapping({"/api/v1/trainers", "/api/v1/trainers/"})
 @CrossOrigin(origins = "*")
 public class TrainerController {
 
@@ -40,7 +42,7 @@ public class TrainerController {
     }
 
     // 1. Add Trainer
-    @PostMapping
+    @PostMapping({"", "/"})
     public ResponseEntity<ApiResponse<TrainerResponse>> addTrainer(
             @Valid @RequestBody TrainerCreateRequest request) {
         TrainerResponse created = trainerService.createTrainer(request);
@@ -49,13 +51,16 @@ public class TrainerController {
     }
 
     // 2. List All Trainers
-    @GetMapping
+    @GetMapping({"", "/"})
     public ResponseEntity<ApiResponse<Page<TrainerResponse>>> getAllTrainers(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String specialization,
+            @RequestParam(required = false) String tenantId,
+            @RequestParam(required = false) String creatorEmail,
+            @RequestParam(required = false) String gymId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "100") int size,
             @RequestParam(defaultValue = "trainerCode") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir
     ) {
@@ -68,15 +73,36 @@ public class TrainerController {
         return ResponseEntity.ok(ApiResponse.success("Trainers retrieved successfully", trainers));
     }
 
-    // 3. Get One Trainer Using ID
-    @GetMapping("/{id}")
+    // 3. Trainer Stats - Placed before /{id} to prevent UUID parse error
+    @GetMapping({"/stats", "/stats/"})
+    public ResponseEntity<ApiResponse<TrainerStatsResponse>> getTrainerStats() {
+        TrainerStatsResponse stats = trainerService.getTrainerStats();
+        return ResponseEntity.ok(ApiResponse.success("Trainer statistics retrieved successfully", stats));
+    }
+
+    // 4. Active Trainers List
+    @GetMapping({"/active", "/active/"})
+    public ResponseEntity<ApiResponse<List<TrainerResponse>>> getActiveTrainers() {
+        List<TrainerResponse> active = trainerService.getActiveTrainers();
+        return ResponseEntity.ok(ApiResponse.success("Active trainers retrieved successfully", active));
+    }
+
+    // 5. Get Trainer By Code
+    @GetMapping({"/code/{code}", "/code/{code}/"})
+    public ResponseEntity<ApiResponse<TrainerResponse>> getTrainerByCode(@PathVariable String code) {
+        TrainerResponse trainer = trainerService.getTrainerByCode(code);
+        return ResponseEntity.ok(ApiResponse.success("Trainer retrieved successfully", trainer));
+    }
+
+    // 6. Get One Trainer Using ID
+    @GetMapping({"/{id}", "/{id}/"})
     public ResponseEntity<ApiResponse<TrainerResponse>> getTrainerById(@PathVariable UUID id) {
         TrainerResponse trainer = trainerService.getTrainerById(id);
         return ResponseEntity.ok(ApiResponse.success("Trainer retrieved successfully", trainer));
     }
 
-    // 4. Edit Trainer
-    @PutMapping("/{id}")
+    // 7. Edit Trainer
+    @PutMapping({"/{id}", "/{id}/"})
     public ResponseEntity<ApiResponse<TrainerResponse>> editTrainer(
             @PathVariable UUID id,
             @Valid @RequestBody TrainerUpdateRequest request) {
@@ -84,7 +110,7 @@ public class TrainerController {
         return ResponseEntity.ok(ApiResponse.success("Trainer updated successfully", updated));
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping({"/{id}", "/{id}/"})
     public ResponseEntity<ApiResponse<TrainerResponse>> patchTrainer(
             @PathVariable UUID id,
             @Valid @RequestBody TrainerUpdateRequest request) {
@@ -92,8 +118,8 @@ public class TrainerController {
         return ResponseEntity.ok(ApiResponse.success("Trainer updated successfully", updated));
     }
 
-    // 5. Delete Trainer
-    @DeleteMapping("/{id}")
+    // 8. Delete Trainer
+    @DeleteMapping({"/{id}", "/{id}/"})
     public ResponseEntity<ApiResponse<Void>> deleteTrainer(@PathVariable UUID id) {
         trainerService.deleteTrainer(id);
         return ResponseEntity.ok(ApiResponse.success("Trainer deleted successfully", null));
