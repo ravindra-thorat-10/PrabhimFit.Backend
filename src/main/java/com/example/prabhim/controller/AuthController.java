@@ -6,8 +6,11 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,19 +26,26 @@ import com.example.prabhim.dto.SessionResponse;
 import com.example.prabhim.dto.TokenRefreshResponse;
 import com.example.prabhim.dto.UserResponse;
 import com.example.prabhim.dto.VerifyEmailRequest;
+import com.example.prabhim.dto.profile.ChangePasswordRequest;
+import com.example.prabhim.dto.profile.ProfileResponse;
+import com.example.prabhim.dto.profile.ProfileUpdateRequest;
 import com.example.prabhim.service.AuthService;
+import com.example.prabhim.service.ProfileService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/auth")
+@CrossOrigin(origins = "*")
 public class AuthController {
 
     private final AuthService authService;
+    private final ProfileService profileService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, ProfileService profileService) {
         this.authService = authService;
+        this.profileService = profileService;
     }
 
     
@@ -110,6 +120,70 @@ public class AuthController {
         authService.logoutAll(userId);
         return ResponseEntity.ok(
                 ApiResponse.success("Logged out from all active sessions successfully.")
+        );
+    }
+
+    @GetMapping({"/me", "/me/"})
+    public ResponseEntity<ApiResponse<ProfileResponse>> getMe(
+            @AuthenticationPrincipal UUID userId,
+            HttpServletRequest request) {
+        ProfileResponse response = profileService.getProfile(userId, request);
+        return ResponseEntity.ok(
+                ApiResponse.success("User profile retrieved successfully.", response)
+        );
+    }
+
+    @GetMapping({"/profile", "/profile/"})
+    public ResponseEntity<ApiResponse<ProfileResponse>> getProfile(
+            @AuthenticationPrincipal UUID userId,
+            HttpServletRequest request) {
+        ProfileResponse response = profileService.getProfile(userId, request);
+        return ResponseEntity.ok(
+                ApiResponse.success("Profile retrieved successfully.", response)
+        );
+    }
+
+    @PutMapping({"/profile", "/profile/"})
+    public ResponseEntity<ApiResponse<ProfileResponse>> updateProfile(
+            @AuthenticationPrincipal UUID userId,
+            @RequestBody ProfileUpdateRequest requestDto,
+            HttpServletRequest request) {
+        ProfileResponse response = profileService.updateProfile(userId, requestDto, request);
+        return ResponseEntity.ok(
+                ApiResponse.success("Profile updated successfully.", response)
+        );
+    }
+
+    @PatchMapping({"/profile", "/profile/"})
+    public ResponseEntity<ApiResponse<ProfileResponse>> patchProfile(
+            @AuthenticationPrincipal UUID userId,
+            @RequestBody ProfileUpdateRequest requestDto,
+            HttpServletRequest request) {
+        ProfileResponse response = profileService.updateProfile(userId, requestDto, request);
+        return ResponseEntity.ok(
+                ApiResponse.success("Profile updated successfully.", response)
+        );
+    }
+
+    @PutMapping({"/change-password", "/change-password/"})
+    public ResponseEntity<ApiResponse<Void>> changePasswordPut(
+            @AuthenticationPrincipal UUID userId,
+            @Valid @RequestBody ChangePasswordRequest requestDto,
+            HttpServletRequest request) {
+        profileService.changePassword(userId, requestDto, request);
+        return ResponseEntity.ok(
+                ApiResponse.success("Password changed successfully.")
+        );
+    }
+
+    @PostMapping({"/change-password", "/change-password/"})
+    public ResponseEntity<ApiResponse<Void>> changePasswordPost(
+            @AuthenticationPrincipal UUID userId,
+            @Valid @RequestBody ChangePasswordRequest requestDto,
+            HttpServletRequest request) {
+        profileService.changePassword(userId, requestDto, request);
+        return ResponseEntity.ok(
+                ApiResponse.success("Password changed successfully.")
         );
     }
 }

@@ -18,8 +18,11 @@ import org.springframework.http.MediaType;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -277,4 +280,177 @@ class MemberControllerTest {
                         .header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    @DisplayName("5. Assign Trainer (PUT /api/v1/members/{id}/assign-trainer)")
+    void testAssignTrainer() throws Exception {
+        MemberCreateRequest createReq = new MemberCreateRequest();
+        createReq.setFirstName("Clark");
+        createReq.setLastName("Kent");
+        createReq.setEmail("clark@dailyplanet.com");
+        createReq.setStatus(MemberStatus.ACTIVE);
+
+        MvcResult res = mockMvc.perform(post("/api/v1/members")
+                        .header("Authorization", "Bearer " + authToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createReq)))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        String memberId = objectMapper.readTree(res.getResponse().getContentAsString()).get("data").get("id").asText();
+
+        // Get admin user ID as trainer
+        User admin = userRepository.findByEmail("admin@gymos.com").orElseThrow();
+
+        com.example.prabhim.dto.member.AssignTrainerRequest assignReq =
+                new com.example.prabhim.dto.member.AssignTrainerRequest(admin.getId());
+
+        mockMvc.perform(put("/api/v1/members/" + memberId + "/assign-trainer")
+                        .header("Authorization", "Bearer " + authToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(assignReq)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success", is(true)))
+                .andExpect(jsonPath("$.data.assignedTrainer.id", is(admin.getId().toString())))
+                .andExpect(jsonPath("$.data.assignedTrainerName", is("Marcus Vance")));
+    }
+
+    @Test
+    @DisplayName("6. Renew Membership (POST /api/v1/members/{id}/renew)")
+    void testRenewMembership() throws Exception {
+        MemberCreateRequest createReq = new MemberCreateRequest();
+        createReq.setFirstName("Diana");
+        createReq.setLastName("Prince");
+        createReq.setEmail("diana@themyscira.gov");
+        createReq.setPlanName("Monthly Basic Pass");
+        createReq.setPlanDurationMonths(1);
+        createReq.setPlanPrice(new BigDecimal("1500.00"));
+        createReq.setStatus(MemberStatus.ACTIVE);
+
+        MvcResult res = mockMvc.perform(post("/api/v1/members")
+                        .header("Authorization", "Bearer " + authToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createReq)))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        String memberId = objectMapper.readTree(res.getResponse().getContentAsString()).get("data").get("id").asText();
+
+        // Renew membership via POST /{id}/renew
+        MemberRenewalRequest renewReq = new MemberRenewalRequest();
+        renewReq.setPlanName("Quarterly Standard Pass");
+        renewReq.setPlanType("STANDARD");
+        renewReq.setDurationMonths(3);
+        renewReq.setPrice(new BigDecimal("4000.00"));
+        renewReq.setPaymentMethod("UPI");
+
+        mockMvc.perform(post("/api/v1/members/" + memberId + "/renew")
+                        .header("Authorization", "Bearer " + authToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(renewReq)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success", is(true)))
+                .andExpect(jsonPath("$.data.planName", is("Quarterly Standard Pass")))
+                .andExpect(jsonPath("$.data.status", is("ACTIVE")));
+    }
+
+    @Test
+    @DisplayName("7. Member Dashboard Stats (GET /api/v1/members/stats)")
+    void testGetMemberStats() throws Exception {
+        MemberCreateRequest createReq = new MemberCreateRequest();
+        createReq.setFirstName("Barry");
+        createReq.setLastName("Allen");
+        createReq.setEmail("barry@starlabs.com");
+        createReq.setStatus(MemberStatus.ACTIVE);
+
+        mockMvc.perform(post("/api/v1/members")
+                        .header("Authorization", "Bearer " + authToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createReq)))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/api/v1/members/stats")
+                        .header("Authorization", "Bearer " + authToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success", is(true)))
+                .andExpect(jsonPath("$.data.totalRecords", greaterThanOrEqualTo(1)));
+    }
+
+    @Test
+    @DisplayName("8. 360 Member Profile (GET /api/v1/members/{id}/profile)")
+    void testGetMemberProfile() throws Exception {
+        MemberCreateRequest createReq = new MemberCreateRequest();
+        createReq.setFirstName("Arthur");
+        createReq.setLastName("Curry");
+        createReq.setEmail("arthur@atlantis.com");
+        createReq.setStatus(MemberStatus.ACTIVE);
+
+        MvcResult res = mockMvc.perform(post("/api/v1/members")
+                        .header("Authorization", "Bearer " + authToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createReq)))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        String memberId = objectMapper.readTree(res.getResponse().getContentAsString()).get("data").get("id").asText();
+
+        mockMvc.perform(get("/api/v1/members/" + memberId + "/profile")
+                        .header("Authorization", "Bearer " + authToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success", is(true)))
+                .andExpect(jsonPath("$.data.member.id", is(memberId)))
+                .andExpect(jsonPath("$.data.attendanceSummary", notNullValue()));
+    }
+
+    @Test
+    @DisplayName("9. Quick Check-In (POST /api/v1/members/{id}/check-in)")
+    void testQuickCheckIn() throws Exception {
+        MemberCreateRequest createReq = new MemberCreateRequest();
+        createReq.setFirstName("Victor");
+        createReq.setLastName("Stone");
+        createReq.setEmail("victor@star.org");
+        createReq.setStatus(MemberStatus.ACTIVE);
+
+        MvcResult res = mockMvc.perform(post("/api/v1/members")
+                        .header("Authorization", "Bearer " + authToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createReq)))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        String memberId = objectMapper.readTree(res.getResponse().getContentAsString()).get("data").get("id").asText();
+
+        QuickCheckInRequest checkInReq = new QuickCheckInRequest("Main Entrance Turnstile");
+
+        mockMvc.perform(post("/api/v1/members/" + memberId + "/check-in")
+                        .header("Authorization", "Bearer " + authToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(checkInReq)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success", is(true)))
+                .andExpect(jsonPath("$.data.facility", is("Main Entrance Turnstile")));
+    }
+
+    @Test
+    @DisplayName("10. Route Aliases & Frontend Compatibility (/api/v1/member, /export, /trainers)")
+    void testRouteAliasesAndCompatibility() throws Exception {
+        // Test singular route /api/v1/member
+        mockMvc.perform(get("/api/v1/member")
+                        .header("Authorization", "Bearer " + authToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success", is(true)));
+
+        // Test trainers endpoint
+        mockMvc.perform(get("/api/v1/members/trainers")
+                        .header("Authorization", "Bearer " + authToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success", is(true)));
+
+        // Test export CSV endpoint
+        mockMvc.perform(get("/api/v1/members/export")
+                        .header("Authorization", "Bearer " + authToken))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", containsString("text/csv")));
+    }
 }
+

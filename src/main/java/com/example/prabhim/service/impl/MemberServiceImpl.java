@@ -39,6 +39,7 @@ import com.example.prabhim.entity.Attendance;
 import com.example.prabhim.entity.Member;
 import com.example.prabhim.entity.MemberActivityLog;
 import com.example.prabhim.entity.Membership;
+import com.example.prabhim.entity.MembershipPlan;
 import com.example.prabhim.entity.Payment;
 import com.example.prabhim.entity.User;
 import com.example.prabhim.entity.enums.Gender;
@@ -52,6 +53,7 @@ import com.example.prabhim.repository.BodyMeasurementRepository;
 import com.example.prabhim.repository.DietPlanRepository;
 import com.example.prabhim.repository.MemberActivityLogRepository;
 import com.example.prabhim.repository.MemberRepository;
+import com.example.prabhim.repository.MembershipPlanRepository;
 import com.example.prabhim.repository.MembershipRepository;
 import com.example.prabhim.repository.PaymentRepository;
 import com.example.prabhim.repository.PtSessionRepository;
@@ -66,6 +68,7 @@ public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository memberRepository;
     private final MembershipRepository membershipRepository;
+    private final MembershipPlanRepository membershipPlanRepository;
     private final AttendanceRepository attendanceRepository;
     private final PaymentRepository paymentRepository;
     private final WorkoutLogRepository workoutLogRepository;
@@ -78,6 +81,7 @@ public class MemberServiceImpl implements MemberService {
     public MemberServiceImpl(
             MemberRepository memberRepository,
             MembershipRepository membershipRepository,
+            MembershipPlanRepository membershipPlanRepository,
             AttendanceRepository attendanceRepository,
             PaymentRepository paymentRepository,
             WorkoutLogRepository workoutLogRepository,
@@ -88,6 +92,7 @@ public class MemberServiceImpl implements MemberService {
             UserRepository userRepository) {
         this.memberRepository = memberRepository;
         this.membershipRepository = membershipRepository;
+        this.membershipPlanRepository = membershipPlanRepository;
         this.attendanceRepository = attendanceRepository;
         this.paymentRepository = paymentRepository;
         this.workoutLogRepository = workoutLogRepository;
@@ -638,6 +643,35 @@ public class MemberServiceImpl implements MemberService {
                 ? request.getDurationMonths()
                 : 12;
 
+        BigDecimal planPrice = (request != null && request.getPrice() != null)
+                ? request.getPrice()
+                : (latestMembership != null ? latestMembership.getPrice() : null);
+
+        // If planId is provided by frontend, resolve from MembershipPlanRepository
+        if (request != null && request.getPlanId() != null && !request.getPlanId().trim().isEmpty()) {
+            String pId = request.getPlanId().trim();
+            MembershipPlan foundPlan = null;
+            try {
+                UUID planUuid = UUID.fromString(pId);
+                foundPlan = membershipPlanRepository.findById(planUuid).orElse(null);
+            } catch (IllegalArgumentException ignored) {
+                foundPlan = membershipPlanRepository.findByNameIgnoreCase(pId).orElse(null);
+            }
+
+            if (foundPlan != null) {
+                planName = foundPlan.getName();
+                if (foundPlan.getPlanType() != null) {
+                    planType = foundPlan.getPlanType();
+                }
+                if (request.getDurationMonths() == null || request.getDurationMonths() == 12) {
+                    durationMonths = foundPlan.getDurationMonths() != null ? foundPlan.getDurationMonths() : durationMonths;
+                }
+                if (planPrice == null) {
+                    planPrice = foundPlan.getPrice();
+                }
+            }
+        }
+
         LocalDate startDate = LocalDate.now();
         if (latestMembership != null && latestMembership.getEndDate() != null && latestMembership.getEndDate().isAfter(LocalDate.now())) {
             startDate = latestMembership.getEndDate().plusDays(1);
@@ -651,11 +685,7 @@ public class MemberServiceImpl implements MemberService {
         newMembership.setPlanType(planType);
         newMembership.setStartDate(startDate);
         newMembership.setEndDate(endDate);
-        if (request != null && request.getPrice() != null) {
-            newMembership.setPrice(request.getPrice());
-        } else if (latestMembership != null) {
-            newMembership.setPrice(latestMembership.getPrice());
-        }
+        newMembership.setPrice(planPrice);
         newMembership.setStatus(MembershipStatus.ACTIVE);
         newMembership.setAutoRenew(request != null && request.getAutoRenew() != null ? request.getAutoRenew() : false);
 
@@ -692,6 +722,41 @@ public class MemberServiceImpl implements MemberService {
                 .orElse(null);
 
         return MemberResponse.fromEntity(updatedMember, MembershipDto.fromEntity(savedMembership), lastCheckIn);
+    }
+
+    @Override
+    public MemberResponse assignTrainer(UUID memberId, UUID trainerId, UUID actorUserId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberNotFoundException("Member not found with id: " + memberId));
+
+        if (trainerId != null) {
+            User trainer = userRepository.findById(trainerId).orElse(null);
+            member.setTrainer(trainer);
+        } else {
+            member.setTrainer(null);
+        }
+
+        Member updated = memberRepository.save(member);
+
+        String actorName = resolveActorName(actorUserId);
+        String trainerDesc = updated.getTrainer() != null
+                ? ("Assigned to coach " + updated.getTrainer().getFirstName() + " " + (updated.getTrainer().getLastName() != null ? updated.getTrainer().getLastName() : "").trim())
+                : "Unassigned from coach";
+
+        MemberActivityLog activityLog = new MemberActivityLog(
+                updated,
+                "TRAINER_ASSIGNED",
+                trainerDesc,
+                actorName
+        );
+        memberActivityLogRepository.save(activityLog);
+
+        Membership latestMembership = membershipRepository.findLatestMembershipByMemberId(updated.getId()).orElse(null);
+        LocalDateTime lastCheckIn = attendanceRepository.findLatestByMemberId(updated.getId())
+                .map(Attendance::getCheckInTime)
+                .orElse(null);
+
+        return MemberResponse.fromEntity(updated, MembershipDto.fromEntity(latestMembership), lastCheckIn);
     }
 
     @Override

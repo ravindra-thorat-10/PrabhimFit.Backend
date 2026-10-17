@@ -25,7 +25,7 @@ import com.example.prabhim.service.MembershipPlanService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping({"/api/v1/membership-plans", "/api/v1/plans"})
+@RequestMapping({"/api/v1/membership-plans", "/api/v1/plans", "/api/v1/memberships"})
 @CrossOrigin(origins = "*")
 public class MembershipPlanController {
 

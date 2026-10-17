@@ -60,6 +60,10 @@ public class MemberProfileResponse {
         return attendance;
     }
 
+    public AttendanceSummaryDto getAttendanceSummary() {
+        return attendance;
+    }
+
     public void setAttendance(AttendanceSummaryDto attendance) {
         this.attendance = attendance;
     }
