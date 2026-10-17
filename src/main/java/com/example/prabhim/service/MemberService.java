@@ -52,6 +52,8 @@ public interface MemberService {
 
     MemberResponse renewMembership(UUID memberId, MemberRenewalRequest request, UUID actorUserId);
 
+    MemberResponse assignTrainer(UUID memberId, UUID trainerId, UUID actorUserId);
+
     List<TrainerSummaryDto> getTrainers();
 
     byte[] exportMembersCsv();

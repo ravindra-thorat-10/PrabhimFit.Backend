@@ -17,10 +17,59 @@ public class UserResponse {
     @JsonProperty("last_name")
     private String lastName;
 
+    private String name;
+
+    @JsonProperty("full_name")
+    private String fullName;
+
     private String phone;
+
+    @JsonProperty("alternate_phone")
+    private String alternatePhone;
+
+    private String designation;
+    private String role;
+
+    @JsonProperty("admin_id")
+    private String adminId;
+
+    @JsonProperty("admin_since")
+    private String adminSince;
+
+    private String avatar;
 
     @JsonProperty("profile_image")
     private String profileImage;
+
+    private String address;
+    private String city;
+    private String state;
+    private String pincode;
+    private String gender;
+    private String dob;
+
+    @JsonProperty("emergency_contact_name")
+    private String emergencyContactName;
+
+    @JsonProperty("emergency_contact_phone")
+    private String emergencyContactPhone;
+
+    @JsonProperty("emergency_contact_relation")
+    private String emergencyContactRelation;
+
+    private String bio;
+
+    @JsonProperty("whatsapp_alerts")
+    private Boolean whatsappAlerts;
+
+    @JsonProperty("email_notifications")
+    private Boolean emailNotifications;
+
+    @JsonProperty("two_factor_enabled")
+    private Boolean twoFactorEnabled;
+
+    @JsonProperty("gym_logo")
+    private String gymLogo;
 
     @JsonProperty("is_email_verified")
     private boolean emailVerified;
@@ -33,6 +82,12 @@ public class UserResponse {
 
     @JsonProperty("is_superuser")
     private boolean superuser;
+
+    @JsonProperty("memberProfile")
+    private Object memberProfile;
+
+    @JsonProperty("adminProfile")
+    private Object adminProfile;
 
     @JsonProperty("created_at")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
@@ -139,5 +194,205 @@ public class UserResponse {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getName() {
+        if (name != null) return name;
+        if (fullName != null) return fullName;
+        if (firstName == null) return lastName != null ? lastName : "";
+        if (lastName == null) return firstName;
+        return (firstName + " " + lastName).trim();
+    }
+
+    public void setName(String name) {
+        this.name = name;
+        if (this.fullName == null) this.fullName = name;
+    }
+
+    public String getFullName() {
+        if (fullName != null) return fullName;
+        return getName();
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+        if (this.name == null) this.name = fullName;
+    }
+
+    public String getAvatar() {
+        return avatar != null ? avatar : profileImage;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+        if (this.profileImage == null) this.profileImage = avatar;
+    }
+
+    public String getAlternatePhone() {
+        return alternatePhone;
+    }
+
+    public void setAlternatePhone(String alternatePhone) {
+        this.alternatePhone = alternatePhone;
+    }
+
+    public String getDesignation() {
+        return designation;
+    }
+
+    public void setDesignation(String designation) {
+        this.designation = designation;
+    }
+
+    public String getRole() {
+        return role != null ? role : "ADMIN";
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public String getAdminId() {
+        return adminId;
+    }
+
+    public void setAdminId(String adminId) {
+        this.adminId = adminId;
+    }
+
+    public String getAdminSince() {
+        return adminSince;
+    }
+
+    public void setAdminSince(String adminSince) {
+        this.adminSince = adminSince;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getPincode() {
+        return pincode;
+    }
+
+    public void setPincode(String pincode) {
+        this.pincode = pincode;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getDob() {
+        return dob;
+    }
+
+    public void setDob(String dob) {
+        this.dob = dob;
+    }
+
+    public String getEmergencyContactName() {
+        return emergencyContactName;
+    }
+
+    public void setEmergencyContactName(String emergencyContactName) {
+        this.emergencyContactName = emergencyContactName;
+    }
+
+    public String getEmergencyContactPhone() {
+        return emergencyContactPhone;
+    }
+
+    public void setEmergencyContactPhone(String emergencyContactPhone) {
+        this.emergencyContactPhone = emergencyContactPhone;
+    }
+
+    public String getEmergencyContactRelation() {
+        return emergencyContactRelation;
+    }
+
+    public void setEmergencyContactRelation(String emergencyContactRelation) {
+        this.emergencyContactRelation = emergencyContactRelation;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
+    public Boolean getWhatsappAlerts() {
+        return whatsappAlerts;
+    }
+
+    public void setWhatsappAlerts(Boolean whatsappAlerts) {
+        this.whatsappAlerts = whatsappAlerts;
+    }
+
+    public Boolean getEmailNotifications() {
+        return emailNotifications;
+    }
+
+    public void setEmailNotifications(Boolean emailNotifications) {
+        this.emailNotifications = emailNotifications;
+    }
+
+    public Boolean getTwoFactorEnabled() {
+        return twoFactorEnabled;
+    }
+
+    public void setTwoFactorEnabled(Boolean twoFactorEnabled) {
+        this.twoFactorEnabled = twoFactorEnabled;
+    }
+
+    public String getGymLogo() {
+        return gymLogo;
+    }
+
+    public void setGymLogo(String gymLogo) {
+        this.gymLogo = gymLogo;
+    }
+
+    public Object getMemberProfile() {
+        return memberProfile;
+    }
+
+    public void setMemberProfile(Object memberProfile) {
+        this.memberProfile = memberProfile;
+    }
+
+    public Object getAdminProfile() {
+        return adminProfile;
+    }
+
+    public void setAdminProfile(Object adminProfile) {
+        this.adminProfile = adminProfile;
     }
 }

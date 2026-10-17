@@ -39,6 +39,36 @@ public class User {
     @Column(columnDefinition = "TEXT")
     private String profilePic;
 
+    private String alternatePhone;
+
+    @Column(columnDefinition = "TEXT")
+    private String address;
+
+    private String city;
+    private String state;
+    private String pincode;
+
+    private String gender;
+    private String dob;
+
+    private String emergencyContactName;
+    private String emergencyContactPhone;
+    private String emergencyContactRelation;
+
+    @Column(columnDefinition = "TEXT")
+    private String bio;
+
+    private String adminId;
+    private String adminSince;
+    private String role = "ADMIN";
+
+    private Boolean whatsappAlerts = true;
+    private Boolean emailNotifications = true;
+    private Boolean twoFactorEnabled = false;
+
+    @Column(columnDefinition = "TEXT")
+    private String gymLogo;
+
     private String timeZone;
     private String theme;
 
@@ -67,11 +97,32 @@ public class User {
         if (this.updatedAt == null) {
             this.updatedAt = LocalDateTime.now();
         }
+        if (this.role == null) {
+            this.role = "ADMIN";
+        }
     }
 
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public String getFullName() {
+        if (firstName == null) {
+            return lastName != null ? lastName : "";
+        }
+        if (lastName == null) {
+            return firstName;
+        }
+        return (firstName + " " + lastName).trim();
+    }
+
+    public void setFullName(String fullName) {
+        if (fullName != null && !fullName.trim().isEmpty()) {
+            String[] parts = fullName.trim().split("\\s+", 2);
+            this.firstName = parts[0];
+            this.lastName = parts.length > 1 ? parts[1] : "";
+        }
     }
 
     public UUID getId() {
@@ -114,6 +165,14 @@ public class User {
         this.phone = phone;
     }
 
+    public String getAlternatePhone() {
+        return alternatePhone;
+    }
+
+    public void setAlternatePhone(String alternatePhone) {
+        this.alternatePhone = alternatePhone;
+    }
+
     public String getPassword() {
         return password;
     }
@@ -123,11 +182,14 @@ public class User {
     }
 
     public String getProfileImage() {
-        return profileImage;
+        return profileImage != null ? profileImage : avatar;
     }
 
     public void setProfileImage(String profileImage) {
         this.profileImage = profileImage;
+        if (this.avatar == null) {
+            this.avatar = profileImage;
+        }
     }
 
     public boolean isEmailVerified() {
@@ -203,19 +265,158 @@ public class User {
     }
 
     public String getAvatar() {
-        return avatar;
+        return avatar != null ? avatar : profileImage;
     }
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+        if (this.profileImage == null) {
+            this.profileImage = avatar;
+        }
     }
 
     public String getProfilePic() {
-        return profilePic;
+        return profilePic != null ? profilePic : avatar;
     }
 
     public void setProfilePic(String profilePic) {
         this.profilePic = profilePic;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getPincode() {
+        return pincode;
+    }
+
+    public void setPincode(String pincode) {
+        this.pincode = pincode;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getDob() {
+        return dob;
+    }
+
+    public void setDob(String dob) {
+        this.dob = dob;
+    }
+
+    public String getEmergencyContactName() {
+        return emergencyContactName;
+    }
+
+    public void setEmergencyContactName(String emergencyContactName) {
+        this.emergencyContactName = emergencyContactName;
+    }
+
+    public String getEmergencyContactPhone() {
+        return emergencyContactPhone;
+    }
+
+    public void setEmergencyContactPhone(String emergencyContactPhone) {
+        this.emergencyContactPhone = emergencyContactPhone;
+    }
+
+    public String getEmergencyContactRelation() {
+        return emergencyContactRelation;
+    }
+
+    public void setEmergencyContactRelation(String emergencyContactRelation) {
+        this.emergencyContactRelation = emergencyContactRelation;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
+    public String getAdminId() {
+        return adminId;
+    }
+
+    public void setAdminId(String adminId) {
+        this.adminId = adminId;
+    }
+
+    public String getAdminSince() {
+        return adminSince;
+    }
+
+    public void setAdminSince(String adminSince) {
+        this.adminSince = adminSince;
+    }
+
+    public String getRole() {
+        return role != null ? role : "ADMIN";
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public Boolean getWhatsappAlerts() {
+        return whatsappAlerts;
+    }
+
+    public void setWhatsappAlerts(Boolean whatsappAlerts) {
+        this.whatsappAlerts = whatsappAlerts;
+    }
+
+    public Boolean getEmailNotifications() {
+        return emailNotifications;
+    }
+
+    public void setEmailNotifications(Boolean emailNotifications) {
+        this.emailNotifications = emailNotifications;
+    }
+
+    public Boolean getTwoFactorEnabled() {
+        return twoFactorEnabled;
+    }
+
+    public void setTwoFactorEnabled(Boolean twoFactorEnabled) {
+        this.twoFactorEnabled = twoFactorEnabled;
+    }
+
+    public String getGymLogo() {
+        return gymLogo;
+    }
+
+    public void setGymLogo(String gymLogo) {
+        this.gymLogo = gymLogo;
     }
 
     public String getTimeZone() {
