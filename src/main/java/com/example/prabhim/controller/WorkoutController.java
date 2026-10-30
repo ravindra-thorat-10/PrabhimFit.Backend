@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -56,21 +57,44 @@ public class WorkoutController {
     @GetMapping({"", "/"})
     public ResponseEntity<ApiResponse<Page<WorkoutRoutineResponse>>> getAllWorkoutRoutines(
             @RequestParam(required = false) String search,
-            @RequestParam(required = false) UUID memberId,
-            @RequestParam(required = false) UUID trainerId,
+            @RequestParam(required = false) String memberId,
+            @RequestParam(required = false) String trainerId,
             @RequestParam(required = false) String status,
+            @RequestParam(required = false) String creatorEmail,
+            @RequestHeader(value = "X-Creator-Email", required = false) String creatorEmailHeader,
+            @RequestHeader(value = "X-Tenant-ID", required = false) String tenantIdHeader,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "100") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir
     ) {
+        UUID resolvedMemberId = null;
+        if (memberId != null && !memberId.trim().isEmpty()) {
+            try {
+                resolvedMemberId = UUID.fromString(memberId.trim());
+            } catch (Exception ignored) {}
+        }
+
+        UUID resolvedTrainerId = null;
+        if (trainerId != null && !trainerId.trim().isEmpty()) {
+            try {
+                resolvedTrainerId = UUID.fromString(trainerId.trim());
+            } catch (Exception ignored) {}
+        }
+
+        String effectiveCreatorEmail = (creatorEmail != null && !creatorEmail.trim().isEmpty())
+                ? creatorEmail.trim()
+                : ((creatorEmailHeader != null && !creatorEmailHeader.trim().isEmpty())
+                    ? creatorEmailHeader.trim()
+                    : ((tenantIdHeader != null && !tenantIdHeader.trim().isEmpty()) ? tenantIdHeader.trim() : null));
+
         Sort sort = sortDir.equalsIgnoreCase("asc")
                 ? Sort.by(sortBy).ascending()
                 : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
 
         Page<WorkoutRoutineResponse> routines = workoutRoutineService.getAllWorkoutRoutines(
-                search, memberId, trainerId, status, pageable
+                search, resolvedMemberId, resolvedTrainerId, status, effectiveCreatorEmail, pageable
         );
         return ResponseEntity.ok(ApiResponse.success("Workout routines retrieved successfully", routines));
     }
@@ -106,7 +130,7 @@ public class WorkoutController {
     @PutMapping({"/{id}", "/{id}/"})
     public ResponseEntity<ApiResponse<WorkoutRoutineResponse>> updateWorkoutRoutine(
             @PathVariable UUID id,
-            @RequestBody WorkoutRoutineUpdateRequest request
+            @Valid @RequestBody WorkoutRoutineUpdateRequest request
     ) {
         WorkoutRoutineResponse updated = workoutRoutineService.updateWorkoutRoutine(id, request);
         return ResponseEntity.ok(ApiResponse.success("Workout routine updated successfully", updated));
@@ -115,7 +139,7 @@ public class WorkoutController {
     @PatchMapping({"/{id}", "/{id}/"})
     public ResponseEntity<ApiResponse<WorkoutRoutineResponse>> patchWorkoutRoutine(
             @PathVariable UUID id,
-            @RequestBody WorkoutRoutineUpdateRequest request
+            @Valid @RequestBody WorkoutRoutineUpdateRequest request
     ) {
         WorkoutRoutineResponse updated = workoutRoutineService.updateWorkoutRoutine(id, request);
         return ResponseEntity.ok(ApiResponse.success("Workout routine updated successfully", updated));

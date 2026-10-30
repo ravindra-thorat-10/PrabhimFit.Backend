@@ -137,8 +137,10 @@ public class WorkoutRoutine {
     public void setMember(Member member) {
         this.member = member;
         if (member != null) {
-            String fullName = member.getFirstName() + " " + member.getLastName();
-            this.athleteName = fullName.trim();
+            String first = member.getFirstName() != null ? member.getFirstName().trim() : "";
+            String last = member.getLastName() != null ? member.getLastName().trim() : "";
+            String fullName = (first + " " + last).trim();
+            this.athleteName = fullName.isEmpty() ? "Gym Athlete" : fullName;
         }
     }
 

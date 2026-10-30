@@ -338,4 +338,49 @@ class WorkoutControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.exercises", hasSize(0)));
     }
+
+    @Test
+    @DisplayName("Should safely handle empty memberId and trainerId query params without 500 error")
+    void testListWorkoutsWithEmptyQueryParams() throws Exception {
+        mockMvc.perform(get("/api/v1/workouts?memberId=&trainerId=&search="))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success", is(true)));
+    }
+
+    @Test
+    @DisplayName("Should return 400 Bad Request for invalid non-UUID path variable")
+    void testGetWorkoutWithInvalidUUID() throws Exception {
+        mockMvc.perform(get("/api/v1/workouts/invalid-client-id-wo-12345"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success", is(false)));
+    }
+
+    @Test
+    @DisplayName("Should filter workout routines by creatorEmail for multi-tenancy")
+    void testListWorkoutsWithCreatorEmailFilter() throws Exception {
+        // Routine for gym A
+        WorkoutRoutineCreateRequest reqA = new WorkoutRoutineCreateRequest();
+        reqA.setName("Gym A Routine");
+        reqA.setCreatorEmail("gymA@prabhim.com");
+        mockMvc.perform(post("/api/v1/workouts")
+                .header("Authorization", "Bearer " + authToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(reqA))).andExpect(status().isCreated());
+
+        // Routine for gym B
+        WorkoutRoutineCreateRequest reqB = new WorkoutRoutineCreateRequest();
+        reqB.setName("Gym B Routine");
+        reqB.setCreatorEmail("gymB@prabhim.com");
+        mockMvc.perform(post("/api/v1/workouts")
+                .header("Authorization", "Bearer " + authToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(reqB))).andExpect(status().isCreated());
+
+        // Query with creatorEmail = gymA@prabhim.com
+        mockMvc.perform(get("/api/v1/workouts?creatorEmail=gymA@prabhim.com"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success", is(true)))
+                .andExpect(jsonPath("$.data.totalElements", is(1)))
+                .andExpect(jsonPath("$.data.content[0].name", is("Gym A Routine")));
+    }
 }
