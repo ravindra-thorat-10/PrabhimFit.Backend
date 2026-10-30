@@ -18,6 +18,8 @@ public interface WorkoutRoutineService {
 
     Page<WorkoutRoutineResponse> getAllWorkoutRoutines(String search, UUID memberId, UUID trainerId, String status, Pageable pageable);
 
+    Page<WorkoutRoutineResponse> getAllWorkoutRoutines(String search, UUID memberId, UUID trainerId, String status, String creatorEmail, Pageable pageable);
+
     WorkoutRoutineResponse getWorkoutRoutineById(UUID id);
 
     List<WorkoutRoutineResponse> getWorkoutRoutinesByMemberId(UUID memberId);
