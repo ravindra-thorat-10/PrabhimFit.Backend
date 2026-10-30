@@ -119,7 +119,7 @@ public class WorkoutRoutineServiceImpl implements WorkoutRoutineService {
                 WorkoutExercise exercise = new WorkoutExercise();
                 exercise.setExerciseName(exReq.getExerciseName());
                 exercise.setSets(exReq.getSets() != null ? exReq.getSets() : 1);
-                exercise.setReps(exReq.getReps());
+                exercise.setReps(exReq.getReps() != null && !exReq.getReps().trim().isEmpty() ? exReq.getReps().trim() : "10-12");
                 exercise.setTargetWeight(exReq.getTargetWeight());
                 exercise.setRestInterval(exReq.getRestInterval());
                 exercise.setOrderIndex(exReq.getOrderIndex() != null ? exReq.getOrderIndex() : order++);
@@ -137,6 +137,14 @@ public class WorkoutRoutineServiceImpl implements WorkoutRoutineService {
     public Page<WorkoutRoutineResponse> getAllWorkoutRoutines(
             String search, UUID memberId, UUID trainerId, String status, Pageable pageable
     ) {
+        return getAllWorkoutRoutines(search, memberId, trainerId, status, null, pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<WorkoutRoutineResponse> getAllWorkoutRoutines(
+            String search, UUID memberId, UUID trainerId, String status, String creatorEmail, Pageable pageable
+    ) {
         Specification<WorkoutRoutine> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -150,6 +158,14 @@ public class WorkoutRoutineServiceImpl implements WorkoutRoutineService {
 
             if (status != null && !status.trim().isEmpty()) {
                 predicates.add(cb.equal(cb.lower(root.get("status")), status.trim().toLowerCase()));
+            }
+
+            if (creatorEmail != null && !creatorEmail.trim().isEmpty()) {
+                String email = creatorEmail.trim().toLowerCase();
+                predicates.add(cb.or(
+                        cb.equal(cb.lower(root.get("creatorEmail")), email),
+                        cb.equal(cb.lower(root.get("tenantId")), email)
+                ));
             }
 
             if (search != null && !search.trim().isEmpty()) {
@@ -275,7 +291,7 @@ public class WorkoutRoutineServiceImpl implements WorkoutRoutineService {
                 WorkoutExercise exercise = new WorkoutExercise();
                 exercise.setExerciseName(exReq.getExerciseName());
                 exercise.setSets(exReq.getSets() != null ? exReq.getSets() : 1);
-                exercise.setReps(exReq.getReps());
+                exercise.setReps(exReq.getReps() != null && !exReq.getReps().trim().isEmpty() ? exReq.getReps().trim() : "10-12");
                 exercise.setTargetWeight(exReq.getTargetWeight());
                 exercise.setRestInterval(exReq.getRestInterval());
                 exercise.setOrderIndex(exReq.getOrderIndex() != null ? exReq.getOrderIndex() : order++);
@@ -303,7 +319,7 @@ public class WorkoutRoutineServiceImpl implements WorkoutRoutineService {
         WorkoutExercise exercise = new WorkoutExercise();
         exercise.setExerciseName(exerciseRequest.getExerciseName());
         exercise.setSets(exerciseRequest.getSets() != null ? exerciseRequest.getSets() : 1);
-        exercise.setReps(exerciseRequest.getReps());
+        exercise.setReps(exerciseRequest.getReps() != null && !exerciseRequest.getReps().trim().isEmpty() ? exerciseRequest.getReps().trim() : "10-12");
         exercise.setTargetWeight(exerciseRequest.getTargetWeight());
         exercise.setRestInterval(exerciseRequest.getRestInterval());
         exercise.setOrderIndex(exerciseRequest.getOrderIndex() != null ? exerciseRequest.getOrderIndex() : routine.getExercises().size() + 1);
