@@ -2,6 +2,7 @@ package com.example.prabhim.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -87,7 +88,13 @@ public class SecurityConfig {
                                 "/api/v1/analytics/**",
                                 "/error"
                         ).permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.GET,
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/v1/members",
+                                "/api/v1/members/**",
+                                "/api/v1/member",
+                                "/api/v1/member/**",
+                                "/api/v1/leads",
+                                "/api/v1/leads/**",
                                 "/api/v1/membership-plans/**",
                                 "/api/v1/plans/**",
                                 "/api/v1/memberships/**",
