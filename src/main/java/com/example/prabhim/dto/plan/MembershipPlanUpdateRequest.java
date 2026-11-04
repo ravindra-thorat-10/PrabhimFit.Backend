@@ -3,9 +3,12 @@ package com.example.prabhim.dto.plan;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class MembershipPlanUpdateRequest {
 
     private String name;
@@ -110,8 +113,24 @@ public class MembershipPlanUpdateRequest {
         return features;
     }
 
-    public void setFeatures(String features) {
-        this.features = features;
+    @JsonSetter("features")
+    public void setFeatures(Object feat) {
+        if (feat instanceof java.util.List<?> list) {
+            this.featuresList = list.stream().map(Object::toString).toList();
+            this.features = String.join(", ", this.featuresList);
+        } else if (feat != null) {
+            String str = feat.toString();
+            this.features = str;
+            if (!str.trim().isEmpty()) {
+                this.featuresList = java.util.Arrays.stream(str.split(","))
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .toList();
+            }
+        } else {
+            this.features = null;
+            this.featuresList = null;
+        }
     }
 
     public List<String> getFeaturesList() {
